@@ -1,7 +1,6 @@
 # Remarked.md
 
-[![VS Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/phyr.remarked)](https://marketplace.visualstudio.com/items?itemName=phyr.remarked)
-[![Installs](https://img.shields.io/visual-studio-marketplace/i/phyr.remarked)](https://marketplace.visualstudio.com/items?itemName=phyr.remarked)
+[![VS Marketplace](https://badgen.net/vs-marketplace/v/phyr.remarked)](https://marketplace.visualstudio.com/items?itemName=phyr.remarked)
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/phyrdaus/remarked?utm_source=oss&utm_medium=github&utm_campaign=phyrdaus%2Fremarked&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 
 Live WYSIWYG markdown editing for VS Code. Open a `.md` file and the
