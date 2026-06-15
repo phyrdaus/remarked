@@ -47,6 +47,8 @@ const LAYOUT: Array<ButtonDef | typeof SEP> = [
   { action: "link", icon: "link", title: "Link (⌘K)", spec: insertLinkSpec },
   { action: "image", icon: "device-camera", title: "Insert image", onClick: openImagePicker },
   { action: "table", icon: "table", title: "Insert table", spec: insertTableSpec },
+  SEP,
+  { action: "viewSource", icon: "markdown", title: "View Markdown source (⌥⌘E)", onClick: (_view, post) => post({ type: "openAsText" }) },
 ];
 
 function openImagePicker(view: EditorView, post: (m: ToHost) => void): void {
