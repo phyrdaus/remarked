@@ -5,11 +5,12 @@ Remarked) and save them at the exact paths below. The README already references
 them, so they render as soon as the files exist.
 
 > **v0.1.1 update (FIR-21):** the toolbar now ends with a **View Source**
-> button (markdown icon, far right — opens the raw `.md`). Re-capture the
-> toolbar shots (**01** and **04**, and **02/03** if the top toolbar is in
-> frame) with **v0.1.1+ installed** so that button is visible. Install/update
-> first: search "Remarked.md" in the Extensions panel → Update, or
-> `code --install-extension phyr.remarked`.
+> button (markdown icon, far right — opens the raw `.md`). The toolbar is a
+> **fixed bar at the top of the editor**, so it appears in *all four* shots —
+> re-capture **every** screenshot with **v0.1.1+ installed** so the new button
+> shows consistently (01 and 04 are toolbar-focused; 02 and 03 still show it on
+> top). Install/update first: search "Remarked.md" in the Extensions panel →
+> Update, or `code --install-extension phyr.remarked`.
 
 Tips for clean shots:
 - Use a comfortable window width (~900–1100px of editor) so text isn't cramped.
