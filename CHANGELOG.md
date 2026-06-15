@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1 — 2026-06-16
+
+- **View Source** button in the formatting toolbar — opens the raw Markdown in
+  the text editor (same as `⌥⌘E`).
+
 ## 0.1.0 — 2026-06-11
 
 First marketplace release.
