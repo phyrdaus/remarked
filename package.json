@@ -1,0 +1,231 @@
+{
+  "name": "remarked",
+  "displayName": "Remarked.md",
+  "description": "Live WYSIWYG markdown editing for VS Code",
+  "version": "0.1.0",
+  "publisher": "phyr",
+  "author": "firッ",
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "keywords": [
+    "markdown",
+    "wysiwyg",
+    "live preview",
+    "editor"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/phyrdaus/remarked"
+  },
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Visualization"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "In untrusted workspaces, workspace-level values for the custom stylesheet and image save folder are ignored.",
+      "restrictedConfigurations": [
+        "remarked.customCss",
+        "remarked.imageFolder"
+      ]
+    }
+  },
+  "contributes": {
+    "configuration": {
+      "title": "Remarked.md",
+      "properties": {
+        "remarked.imageFolder": {
+          "type": "string",
+          "default": "assets",
+          "markdownDescription": "Folder **relative to the document** where pasted or dropped images are saved."
+        },
+        "remarked.customCss": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Path to a CSS file loaded after Remarked's styles (absolute, or relative to the first workspace folder). Applies to newly opened editors."
+        },
+        "remarked.math.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Render KaTeX math. Applies to newly opened editors."
+        },
+        "remarked.mermaid.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Render Mermaid diagrams. Applies to newly opened editors."
+        },
+        "remarked.largeFileSizeMb": {
+          "type": "number",
+          "default": 2,
+          "markdownDescription": "Documents larger than this (in MB) ask before rendering. Applies to newly opened editors."
+        },
+        "remarked.export.embedImages": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Embed images as base64 data URIs in exported HTML (single self-contained file). When false, images are copied into a `<name>_files` folder next to the export."
+        },
+        "remarked.toolbar.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Show the formatting toolbar at the top of the editor."
+        }
+      }
+    },
+    "customEditors": [
+      {
+        "viewType": "remarked.editor",
+        "displayName": "Remarked.md",
+        "selector": [
+          {
+            "filenamePattern": "*.md"
+          },
+          {
+            "filenamePattern": "*.markdown"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
+    "commands": [
+      {
+        "command": "remarked.toggleSource",
+        "category": "Remarked.md",
+        "title": "Toggle Markdown Source",
+        "icon": "$(code)"
+      },
+      {
+        "command": "remarked.toggleFocusMode",
+        "category": "Remarked.md",
+        "title": "Toggle Focus Mode"
+      },
+      {
+        "command": "remarked.toggleTypewriterMode",
+        "category": "Remarked.md",
+        "title": "Toggle Typewriter Mode"
+      },
+      {
+        "command": "remarked.jumpToHeading",
+        "category": "Remarked.md",
+        "title": "Jump to Heading"
+      },
+      {
+        "command": "remarked.toggleDefaultEditor",
+        "category": "Remarked.md",
+        "title": "Toggle Remarked as Default Markdown Editor"
+      },
+      {
+        "command": "remarked.exportHtml",
+        "category": "Remarked.md",
+        "title": "Export to HTML"
+      },
+      {
+        "command": "remarked.exportPdf",
+        "category": "Remarked.md",
+        "title": "Export to PDF"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "remarked.toggleSource",
+        "key": "ctrl+shift+alt+e",
+        "mac": "alt+cmd+e",
+        "when": "activeCustomEditorId == 'remarked.editor' || resourceExtname =~ /^\\.(md|markdown)$/i"
+      },
+      {
+        "command": "remarked.jumpToHeading",
+        "key": "ctrl+shift+o",
+        "mac": "cmd+shift+o",
+        "when": "activeCustomEditorId == 'remarked.editor'"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "remarked.toggleSource",
+          "when": "resourceExtname =~ /^\\.(md|markdown)$/i",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "remarked.toggleSource",
+          "when": "activeCustomEditorId == 'remarked.editor' || resourceExtname =~ /^\\.(md|markdown)$/i"
+        },
+        {
+          "command": "remarked.toggleFocusMode",
+          "when": "activeCustomEditorId == 'remarked.editor'"
+        },
+        {
+          "command": "remarked.toggleTypewriterMode",
+          "when": "activeCustomEditorId == 'remarked.editor'"
+        },
+        {
+          "command": "remarked.jumpToHeading",
+          "when": "activeCustomEditorId == 'remarked.editor'"
+        },
+        {
+          "command": "remarked.exportHtml",
+          "when": "activeCustomEditorId == 'remarked.editor'"
+        },
+        {
+          "command": "remarked.exportPdf",
+          "when": "activeCustomEditorId == 'remarked.editor'"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "package": "vsce package --no-dependencies",
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "pretest:integration": "npm run build && tsc -p tsconfig.test.json",
+    "test:integration": "node ./out-test/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/katex": "^0.16.8",
+    "@types/markdown-it": "^14.1.2",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.100.0",
+    "@vscode/test-electron": "^3.0.0",
+    "@vscode/vsce": "^3.9.2",
+    "esbuild": "^0.28.1",
+    "jsdom": "^29.1.1",
+    "mocha": "^11.0.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  },
+  "dependencies": {
+    "@codemirror/commands": "^6.8.0",
+    "@codemirror/lang-markdown": "^6.3.0",
+    "@codemirror/language": "^6.12.3",
+    "@codemirror/language-data": "^6.5.2",
+    "@codemirror/state": "^6.5.0",
+    "@codemirror/view": "^6.36.0",
+    "@vscode/codicons": "^0.0.45",
+    "katex": "^0.17.0",
+    "markdown-it": "^14.2.0",
+    "mermaid": "^11.15.0"
+  },
+  "overrides": {
+    "diff": "^8.0.4",
+    "serialize-javascript": "^7.0.5"
+  },
+  "allowScripts": {
+    "esbuild@0.25.12": true,
+    "esbuild@0.27.7": true,
+    "esbuild@0.28.1": true,
+    "fsevents@2.3.3": true,
+    "@vscode/vsce-sign@2.0.9": true,
+    "keytar@7.9.0": true
+  }
+}

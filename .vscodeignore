@@ -1,0 +1,17 @@
+src/**
+test/**
+out-test/**
+node_modules/**
+esbuild.mjs
+tsconfig*.json
+.vscode/**
+.superpowers/**
+docs/**
+**/*.map
+.remember/**
+vitest.config.ts
+demo/**
+.github/**
+.gitignore
+images/SHOTS.md
+media/icon-src.html

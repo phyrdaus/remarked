@@ -1,0 +1,8 @@
+node_modules/
+dist/
+out/
+*.vsix
+.superpowers/
+.DS_Store
+out-test/
+.vscode-test/
