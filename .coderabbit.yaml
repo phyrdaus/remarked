@@ -1,0 +1,19 @@
+# CodeRabbit configuration — https://docs.coderabbit.ai/reference/yaml-template
+language: en-US
+reviews:
+  profile: chill
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - main
+    # Dependabot PRs are already gated by CI; skip AI review to keep them quiet.
+    ignore_usernames:
+      - "dependabot[bot]"
+  # Skip generated/binary content; review source, tests, docs, workflows.
+  path_filters:
+    - "!dist/**"
+    - "!**/*.map"
+    - "!images/**"
+    - "!media/**"
+    - "!**/*.vsix"
