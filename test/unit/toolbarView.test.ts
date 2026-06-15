@@ -44,7 +44,16 @@ describe("createToolbar", () => {
       "bullet", "ordered", "task",
       "blockquote", "codeblock", "hr",
       "link", "image", "table",
+      "viewSource",
     ]);
+  });
+
+  it("view-source button asks the host to open the raw markdown", () => {
+    const posted: Array<{ type: string }> = [];
+    const view = new FakeView("x");
+    const { dom } = createToolbar(view as unknown as EditorView, (m) => posted.push(m));
+    click(dom, "viewSource");
+    expect(posted).toEqual([{ type: "openAsText" }]);
   });
 
   it("a bold click dispatches the bold toggle to the document", () => {
