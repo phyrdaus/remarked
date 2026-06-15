@@ -9,6 +9,11 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    ignore:
+      # @types/node must track VS Code's runtime Node (engines ^1.100.0 → Node
+      # 20), not "latest". Hold the major; still take 20.x patches/minors.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
     groups:
       production-dependencies:
         dependency-type: "production"
