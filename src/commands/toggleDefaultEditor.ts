@@ -1,21 +1,19 @@
 import * as vscode from "vscode";
 import { nextDefaultEditorState } from "./defaultEditorState";
+import { setMarkdownDefaultEditor } from "./setMarkdownDefault";
 
 /**
  * Flip which editor opens markdown by default. The manifest's priority
  * "default" makes Remarked the default out of the box; the sanctioned per-user
- * override is workbench.editorAssociations, written at the GLOBAL level only —
- * reading the merged value would copy workspace-level associations into the
- * user's global settings (Plan 5 review finding).
+ * override is workbench.editorAssociations, written at the GLOBAL level only
+ * (see setMarkdownDefaultEditor).
  */
 export async function toggleDefaultEditor(): Promise<void> {
-  const cfg = vscode.workspace.getConfiguration("workbench");
-  const inspected = cfg.inspect<Record<string, string>>("editorAssociations");
-  const globalAssociations = { ...(inspected?.globalValue ?? {}) };
+  const inspected = vscode.workspace
+    .getConfiguration("workbench")
+    .inspect<Record<string, string>>("editorAssociations");
   const { next } = nextDefaultEditorState(inspected?.globalValue);
-  globalAssociations["*.md"] = next;
-  globalAssociations["*.markdown"] = next;
-  await cfg.update("editorAssociations", globalAssociations, vscode.ConfigurationTarget.Global);
+  await setMarkdownDefaultEditor(next);
 
   const workspaceOverride = inspected?.workspaceValue?.["*.md"];
   if (workspaceOverride && workspaceOverride !== next) {

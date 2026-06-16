@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { nextDefaultEditorState } from "../../src/commands/defaultEditorState";
+import { nextDefaultEditorState, withMarkdownDefault } from "../../src/commands/defaultEditorState";
 
 describe("nextDefaultEditorState", () => {
   it("treats unset and remarked associations as 'remarked is default' and flips to text", () => {
@@ -25,6 +25,34 @@ describe("nextDefaultEditorState", () => {
     expect(nextDefaultEditorState({ "*.svg": "x.editor" })).toEqual({
       next: "default",
       remarkedWasDefault: true,
+    });
+  });
+});
+
+describe("withMarkdownDefault", () => {
+  it("sets both markdown globs to the target", () => {
+    expect(withMarkdownDefault(undefined, "default")).toEqual({
+      "*.md": "default",
+      "*.markdown": "default",
+    });
+    expect(withMarkdownDefault({}, "remarked.editor")).toEqual({
+      "*.md": "remarked.editor",
+      "*.markdown": "remarked.editor",
+    });
+  });
+
+  it("preserves unrelated associations", () => {
+    expect(withMarkdownDefault({ "*.svg": "x.editor" }, "default")).toEqual({
+      "*.svg": "x.editor",
+      "*.md": "default",
+      "*.markdown": "default",
+    });
+  });
+
+  it("overwrites any prior markdown association", () => {
+    expect(withMarkdownDefault({ "*.md": "default", "*.markdown": "default" }, "remarked.editor")).toEqual({
+      "*.md": "remarked.editor",
+      "*.markdown": "remarked.editor",
     });
   });
 });

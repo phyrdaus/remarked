@@ -74,6 +74,11 @@
           "type": "boolean",
           "default": true,
           "markdownDescription": "Show the formatting toolbar at the top of the editor."
+        },
+        "remarked.rememberLastFormat": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "When you switch a Markdown file between the rich-text and source views (Toggle Markdown Source), remember that choice as the default for newly opened Markdown files."
         }
       }
     },
