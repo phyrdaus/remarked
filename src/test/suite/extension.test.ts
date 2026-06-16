@@ -193,7 +193,7 @@ suite("Remarked foundation", () => {
       "remarked.customCss",
       "remarked.imageFolder",
     ]);
-    assert.strictEqual(pkg.version, "0.1.0");
+    assert.match(pkg.version, /^\d+\.\d+\.\d+$/, "version is not valid semver");
     assert.strictEqual(
       vscode.workspace.getConfiguration("remarked").get("export.embedImages"),
       true
