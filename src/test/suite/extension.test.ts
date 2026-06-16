@@ -170,6 +170,7 @@ suite("Remarked foundation", () => {
     assert.strictEqual(cfg.get("math.enabled"), true);
     assert.strictEqual(cfg.get("mermaid.enabled"), true);
     assert.strictEqual(cfg.get("largeFileSizeMb"), 2);
+    assert.strictEqual(cfg.get("rememberLastFormat"), true);
   });
 
   test("plan 6 commands are registered", async () => {
