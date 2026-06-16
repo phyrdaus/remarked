@@ -16,7 +16,21 @@ function makeTempMarkdownFile(): vscode.Uri {
 suite("Remarked foundation", () => {
   teardown(async () => {
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
+    // toggleSource now writes the global editor association (rememberLastFormat
+    // defaults on); reset it so it can't leak into later tests' fresh opens.
+    await vscode.workspace
+      .getConfiguration("workbench")
+      .update("editorAssociations", undefined, vscode.ConfigurationTarget.Global);
+    await vscode.workspace
+      .getConfiguration("remarked")
+      .update("rememberLastFormat", undefined, vscode.ConfigurationTarget.Global);
   });
+
+  function mdGlobalAssociations(): Record<string, string> | undefined {
+    return vscode.workspace
+      .getConfiguration("workbench")
+      .inspect<Record<string, string>>("editorAssociations")?.globalValue;
+  }
 
   test("extension activates and registers the toggle command", async () => {
     const ext = vscode.extensions.getExtension("phyr.remarked");
@@ -62,6 +76,30 @@ suite("Remarked foundation", () => {
     await vscode.commands.executeCommand("remarked.toggleSource");
     tab = vscode.window.tabGroups.activeTabGroup.activeTab;
     assert.ok(tab?.input instanceof vscode.TabInputCustom, "expected custom editor after second toggle");
+  });
+
+  test("toggling source remembers the chosen view as the global default", async () => {
+    const uri = makeTempMarkdownFile();
+    await vscode.commands.executeCommand("vscode.openWith", uri, "remarked.editor");
+
+    await vscode.commands.executeCommand("remarked.toggleSource");
+    assert.strictEqual(mdGlobalAssociations()?.["*.md"], "default");
+    assert.strictEqual(mdGlobalAssociations()?.["*.markdown"], "default");
+
+    await vscode.commands.executeCommand("remarked.toggleSource");
+    assert.strictEqual(mdGlobalAssociations()?.["*.md"], "remarked.editor");
+    assert.strictEqual(mdGlobalAssociations()?.["*.markdown"], "remarked.editor");
+  });
+
+  test("toggling source leaves the default untouched when rememberLastFormat is off", async () => {
+    await vscode.workspace
+      .getConfiguration("remarked")
+      .update("rememberLastFormat", false, vscode.ConfigurationTarget.Global);
+    const uri = makeTempMarkdownFile();
+    await vscode.commands.executeCommand("vscode.openWith", uri, "remarked.editor");
+
+    await vscode.commands.executeCommand("remarked.toggleSource");
+    assert.strictEqual(mdGlobalAssociations(), undefined);
   });
 
   async function until(cond: () => boolean, ms = 5000): Promise<void> {
