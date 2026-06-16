@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 — 2026-06-16
 
 - **Remember last-used view** — switching a Markdown file between the rich-text
   and source views now sets that view as the default for newly opened Markdown
