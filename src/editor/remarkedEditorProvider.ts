@@ -268,7 +268,10 @@ export class RemarkedEditorProvider implements vscode.CustomTextEditorProvider {
           break;
         }
         case "openAsText":
-          void vscode.commands.executeCommand("vscode.openWith", document.uri, "default");
+          // Route through the command so the toolbar button shares the
+          // shortcut's behavior — including remembering the chosen view
+          // (rememberLastFormat). Both must stay one path; see toggleSource.
+          void vscode.commands.executeCommand("remarked.toggleSource");
           break;
         case "showError":
           // Webview-originated user notification (our own code's errors).

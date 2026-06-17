@@ -17,7 +17,8 @@ export type ToWebview =
   | { type: "revealPos"; pos: number }
   | { type: "export:renderMermaid"; requestId: number; sources: string[] }
   | { type: "test:dispatchEdit"; changes: Replacement[] }
-  | { type: "test:getText" };
+  | { type: "test:getText" }
+  | { type: "test:openAsText" };
 
 /** Webview -> host */
 export type ToHost =
