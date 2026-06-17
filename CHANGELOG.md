@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1 — 2026-06-17
+
+- **Fix:** the toolbar **View Source** button now remembers the source view as
+  the default (when `remarked.rememberLastFormat` is on), matching the `⌥⌘E`
+  shortcut. Previously only the keyboard shortcut / command persisted the choice.
+
 ## 0.2.0 — 2026-06-16
 
 - **Remember last-used view** — switching a Markdown file between the rich-text

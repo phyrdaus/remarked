@@ -91,6 +91,20 @@ suite("Remarked foundation", () => {
     assert.strictEqual(mdGlobalAssociations()?.["*.markdown"], "remarked.editor");
   });
 
+  test("the View Source toolbar button remembers the source view too", async () => {
+    const api = await getTestApi();
+    const uri = makeTempMarkdownFile();
+    await vscode.commands.executeCommand("vscode.openWith", uri, "remarked.editor");
+    await webviewReady(api);
+
+    // Click View Source via the real toolbar -> openAsText -> host path,
+    // not the toggleSource command. It must persist the same as the shortcut.
+    api.postToLatestWebview({ type: "test:openAsText" });
+
+    await until(() => mdGlobalAssociations()?.["*.md"] === "default");
+    assert.strictEqual(mdGlobalAssociations()?.["*.markdown"], "default");
+  });
+
   test("toggling source leaves the default untouched when rememberLastFormat is off", async () => {
     await vscode.workspace
       .getConfiguration("remarked")

@@ -137,6 +137,11 @@ window.addEventListener("message", (event) => {
     case "test:getText":
       if (view) post({ type: "test:text", text: view.state.doc.toString() });
       break;
+    case "test:openAsText":
+      // Emit the exact message the View Source toolbar button posts, so the
+      // host's openAsText path can be driven end-to-end from integration tests.
+      post({ type: "openAsText" });
+      break;
     case "setMode":
       if (!view) return;
       view.dispatch({
