@@ -2,6 +2,11 @@
 language: en-US
 reviews:
   profile: chill
+  # Flag low-quality, AI-generated spam PRs. Public-repo only and on by
+  # default; setting a label lets us filter/triage flagged PRs at a glance.
+  slop_detection:
+    enabled: true
+    label: "slop"
   # Codebase uses terse comments, not docstrings; the default 80% docstring
   # pre-merge check would warn on nearly every small PR. Turn it off.
   pre_merge_checks:
