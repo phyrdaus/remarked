@@ -1,29 +1,29 @@
 # Changelog
 
-## 0.2.1 — 2026-06-17
+## 0.2.1 - 2026-06-17
 
 - **Fix:** the toolbar **View Source** button now remembers the source view as
   the default (when `remarked.rememberLastFormat` is on), matching the `⌥⌘E`
   shortcut. Previously only the keyboard shortcut / command persisted the choice.
 
-## 0.2.0 — 2026-06-16
+## 0.2.0 - 2026-06-16
 
-- **Remember last-used view** — switching a Markdown file between the rich-text
+- **Remember last-used view.** Switching a Markdown file between the rich-text
   and source views now sets that view as the default for newly opened Markdown
   files. Turn it off with `remarked.rememberLastFormat: false`.
 
-## 0.1.1 — 2026-06-16
+## 0.1.1 - 2026-06-16
 
-- **View Source** button in the formatting toolbar — opens the raw Markdown in
+- **View Source** button in the formatting toolbar, opening the raw Markdown in
   the text editor (same as `⌥⌘E`).
 
-## 0.1.0 — 2026-06-11
+## 0.1.0 - 2026-06-11
 
 First marketplace release.
 
 - Live WYSIWYG markdown editing: the document is the editor; syntax
   reveals span-by-span around your caret and re-renders as you leave.
-- Byte-perfect files — the source text is the document model; nothing is ever
+- Byte-perfect files: the source text is the document model; nothing is ever
   reformatted behind your back.
 - Instant source toggle (`⌥⌘E` / `Ctrl+Shift+Alt+E`).
 - Formatting toolbar at the top of the editor (bold, italic, strikethrough,
