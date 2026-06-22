@@ -4,18 +4,18 @@
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/phyrdaus/remarked?utm_source=oss&utm_medium=github&utm_campaign=phyrdaus%2Fremarked&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 
 Live WYSIWYG markdown editing for VS Code. Open a `.md` file and the
-document **is** the editor — headings, tables, math, diagrams and images
+document **is** the editor: headings, tables, math, diagrams and images
 render in place, and only the syntax around your caret reveals while you
 edit it.
 
 - **Byte-perfect files.** The source text is the document model. No
   serialization, no reformatting, clean diffs.
-- **Span-level syntax reveal** — only the markdown around your caret shows;
+- **Span-level syntax reveal.** Only the markdown around your caret shows;
   never whole-paragraph flips.
-- **Instant source toggle** — `⌥⌘E` (mac) / `Ctrl+Shift+Alt+E` reopens the
+- **Instant source toggle.** `⌥⌘E` (mac) / `Ctrl+Shift+Alt+E` reopens the
   same buffer in the plain text editor and back.
 - **Formatting toolbar** at the top of the editor with bold, italic,
-  strikethrough, inline code, headings (H1–H3), lists, blockquote, code block,
+  strikethrough, inline code, headings (H1-H3), lists, blockquote, code block,
   horizontal rule, link, image, and table actions. Buttons reflect the
   formatting at the cursor. Hide it with `remarked.toolbar.enabled: false`.
 - **GFM tables** you edit like a spreadsheet: click a cell and type, Tab/Enter
@@ -27,7 +27,7 @@ edit it.
 - **Navigate & write**: jump to heading (`⇧⌘O`), word count + reading time,
   focus mode, typewriter mode.
 - **Export** to a single self-contained HTML file or to PDF (uses your
-  installed Chrome/Edge — nothing bundled).
+  installed Chrome/Edge, nothing bundled).
 - **Make it yours**: `remarked.customCss` loads your stylesheet last, so
   your theme gets the final word.
 
@@ -35,7 +35,7 @@ edit it.
 
 ![The live WYSIWYG editor with the formatting toolbar, editing demo.md](images/01-live-editor.png)
 
-*The document **is** the editor — formatting renders in place, with the toolbar on top.*
+*The document **is** the editor: formatting renders in place, with the toolbar on top.*
 
 ![Editing a GFM table in place](images/02-table-editing.png)
 
@@ -52,7 +52,7 @@ edit it.
 ## Try it
 
 Open [`demo/demo.md`](demo/demo.md) in Remarked to see everything in one
-document — headings, GFM tables, KaTeX math, a Mermaid diagram, task lists, and
+document: headings, GFM tables, KaTeX math, a Mermaid diagram, task lists, and
 the formatting toolbar.
 
 ## Settings
@@ -60,7 +60,7 @@ the formatting toolbar.
 | Setting | Default | What it does |
 | --- | --- | --- |
 | `remarked.imageFolder` | `assets` | Where pasted/dropped images are saved (relative to the document). |
-| `remarked.customCss` | – | Path to a CSS file loaded after Remarked's styles. |
+| `remarked.customCss` | (none) | Path to a CSS file loaded after Remarked's styles. |
 | `remarked.math.enabled` | `true` | Render KaTeX math. |
 | `remarked.mermaid.enabled` | `true` | Render Mermaid diagrams. |
 | `remarked.largeFileSizeMb` | `2` | Documents larger than this ask before rendering. |
