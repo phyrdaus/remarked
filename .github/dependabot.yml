@@ -14,6 +14,12 @@ updates:
       # 20), not "latest". Hold the major; still take 20.x patches/minors.
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
+      # @types/vscode must equal engines.vscode (^1.100.0) — vsce package fails
+      # if it's higher. Only bump deliberately when raising the min VS Code
+      # version. Hold minor + major; patches stay within the same API level.
+      - dependency-name: "@types/vscode"
+        update-types:
+          ["version-update:semver-major", "version-update:semver-minor"]
     groups:
       production-dependencies:
         dependency-type: "production"
