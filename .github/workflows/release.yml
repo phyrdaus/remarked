@@ -13,7 +13,7 @@ jobs:
       # visibility inside its own `if` varies by runner version).
       VSCE_PAT: ${{ secrets.VSCE_PAT }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
         with:
           node-version: 20
