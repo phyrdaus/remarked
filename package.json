@@ -2,7 +2,7 @@
   "name": "remarked",
   "displayName": "Remarked.md",
   "description": "Live WYSIWYG markdown editing for VS Code",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "publisher": "phyr",
   "author": "firッ",
   "license": "MIT",

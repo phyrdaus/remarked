@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.3 - 2026-06-28
+
+- **Smaller package.** Ship woff2-only KaTeX fonts and exclude repo-only
+  files from the VSIX, roughly halving the published package size. No
+  change to rendering or features.
+
 ## 0.2.2 - 2026-06-28
 
 - **Docs:** add a Ko-fi support badge to the README.
