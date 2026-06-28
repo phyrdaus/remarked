@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.2 - 2026-06-28
+
+- **Docs:** add a Ko-fi support badge to the README.
+
 ## 0.2.1 - 2026-06-17
 
 - **Fix:** the toolbar **View Source** button now remembers the source view as
