@@ -1,5 +1,5 @@
 import esbuild from "esbuild";
-import { cpSync, mkdirSync, rmSync } from "node:fs";
+import { cpSync, mkdirSync, rmSync, statSync } from "node:fs";
 
 const watch = process.argv.includes("--watch");
 
@@ -28,7 +28,13 @@ const builds = [
 function copyAssets() {
   mkdirSync("dist/webview", { recursive: true });
   cpSync("node_modules/katex/dist/katex.min.css", "dist/webview/katex.min.css");
-  cpSync("node_modules/katex/dist/fonts", "dist/webview/fonts", { recursive: true });
+  // Ship only woff2: katex.min.css lists woff2 first in every @font-face, and
+  // the VS Code webview is always Chromium (woff2-capable), so the .woff/.ttf
+  // fallbacks are never requested. Dropping them removes ~40 unused font files.
+  cpSync("node_modules/katex/dist/fonts", "dist/webview/fonts", {
+    recursive: true,
+    filter: (src) => statSync(src).isDirectory() || src.endsWith(".woff2"),
+  });
   cpSync("node_modules/@vscode/codicons/dist/codicon.css", "dist/webview/codicon.css");
   cpSync("node_modules/@vscode/codicons/dist/codicon.ttf", "dist/webview/codicon.ttf");
 }

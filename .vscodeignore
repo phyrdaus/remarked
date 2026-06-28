@@ -13,5 +13,6 @@ vitest.config.ts
 demo/**
 .github/**
 .gitignore
-images/SHOTS.md
+.coderabbit.yaml
+images/**
 media/icon-src.html
