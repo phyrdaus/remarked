@@ -2,6 +2,7 @@
 
 [![VS Marketplace](https://badgen.net/vs-marketplace/v/phyr.remarked)](https://marketplace.visualstudio.com/items?itemName=phyr.remarked)
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/phyrdaus/remarked?utm_source=oss&utm_medium=github&utm_campaign=phyrdaus%2Fremarked&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Support-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/H2H01RWXFT)
 
 Live WYSIWYG markdown editing for VS Code. Open a `.md` file and the
 document **is** the editor: headings, tables, math, diagrams and images
