@@ -12,12 +12,14 @@ export class PreviewPanelManager {
   private readonly debouncer = createDebouncer(250);
   private changeSub: vscode.Disposable | undefined;
   private closeSub: vscode.Disposable | undefined;
+  private messageSub: vscode.Disposable | undefined;
 
   constructor(private readonly extensionUri: vscode.Uri) {}
 
   public open(document: vscode.TextDocument): void {
     this.document = document;
     if (this.panel) {
+      this.panel.title = this.titleFor(document);
       this.panel.reveal(vscode.ViewColumn.Beside, true);
       this.render();
       return;
@@ -30,7 +32,7 @@ export class PreviewPanelManager {
     const customCssUri = customCssFsPath ? vscode.Uri.file(customCssFsPath) : undefined;
     this.panel = vscode.window.createWebviewPanel(
       "remarked.preview",
-      "Preview: " + (document.uri.path.split("/").pop() ?? "Document"),
+      this.titleFor(document),
       { viewColumn: vscode.ViewColumn.Beside, preserveFocus: true },
       {
         enableScripts: true,
@@ -43,6 +45,9 @@ export class PreviewPanelManager {
       }
     );
     const webview = this.panel.webview;
+    this.messageSub = webview.onDidReceiveMessage((msg) => {
+      if (msg?.type === "ready") this.render();
+    });
     const dist = vscode.Uri.joinPath(this.extensionUri, "dist", "webview");
     webview.html = renderPreviewHtml({
       cspSource: webview.cspSource,
@@ -65,6 +70,8 @@ export class PreviewPanelManager {
       this.changeSub = undefined;
       this.closeSub?.dispose();
       this.closeSub = undefined;
+      this.messageSub?.dispose();
+      this.messageSub = undefined;
       this.panel = undefined;
       this.document = undefined;
     });
@@ -72,11 +79,10 @@ export class PreviewPanelManager {
     this.closeSub = vscode.workspace.onDidCloseTextDocument((doc) => {
       if (doc === this.document) this.panel?.dispose();
     });
+  }
 
-    // First paint after the webview script has loaded. The webview does not
-    // send "ready"; a microtask delay lets it attach its message listener.
-    this.render();
-    setTimeout(() => this.render(), 0);
+  private titleFor(document: vscode.TextDocument): string {
+    return "Preview: " + (document.uri.path.split("/").pop() ?? "Document");
   }
 
   private render(): void {
@@ -100,6 +106,7 @@ export class PreviewPanelManager {
     this.debouncer.cancel();
     this.changeSub?.dispose();
     this.closeSub?.dispose();
+    this.messageSub?.dispose();
     this.panel?.dispose();
   }
 }

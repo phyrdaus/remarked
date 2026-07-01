@@ -8,6 +8,8 @@ interface PreviewRenderMsg {
   mermaidSources: string[];
 }
 
+declare function acquireVsCodeApi(): { postMessage(msg: unknown): void };
+
 /** Inject html and render mermaid slots, preserving scroll position. */
 export function applyRender(container: HTMLElement, html: string, mermaidSources: string[]): void {
   const scroll = container.scrollTop;
@@ -25,4 +27,5 @@ if (root) {
     const msg = event.data as PreviewRenderMsg;
     if (msg?.type === "render") applyRender(root, msg.html, msg.mermaidSources);
   });
+  acquireVsCodeApi().postMessage({ type: "ready" });
 }
