@@ -95,9 +95,14 @@ export function createToolbar(
     const btn = document.createElement("button");
     btn.type = "button";
     btn.dataset.action = item.action;
-    btn.title = item.shortcut
+    // Label lives on aria-label + a custom tooltip, not the native `title`:
+    // native titles are slow (~1s) and fire inconsistently in webviews, so
+    // the shortcut hint was often unreadable.
+    const label = item.shortcut
       ? `${item.title} (${isMac ? item.shortcut.mac : item.shortcut.other})`
       : item.title;
+    btn.setAttribute("aria-label", label);
+    btn.dataset.tip = label;
     if (item.icon) {
       const i = document.createElement("span");
       i.className = `codicon codicon-${item.icon}`;
@@ -117,6 +122,34 @@ export function createToolbar(
 
   // Clicks must not steal the selection from the document.
   dom.addEventListener("mousedown", (e) => e.preventDefault());
+
+  // Custom tooltip: a single element the buttons share. Replaces the native
+  // `title` attribute, which is slow to appear and fires unreliably in webviews.
+  const tip = document.createElement("div");
+  tip.className = "rm-toolbar-tip";
+  tip.setAttribute("role", "tooltip");
+  dom.appendChild(tip);
+  let tipTimer: ReturnType<typeof setTimeout> | undefined;
+  const hideTip = () => {
+    if (tipTimer) { clearTimeout(tipTimer); tipTimer = undefined; }
+    tip.classList.remove("show");
+  };
+  const showTip = (el: HTMLElement) => {
+    const label = el.dataset.tip;
+    if (!label) return;
+    tip.textContent = label;
+    tip.style.left = `${el.offsetLeft}px`;
+    tip.style.top = `${el.offsetTop + el.offsetHeight + 4}px`;
+    tip.classList.add("show");
+  };
+  for (const b of buttons) {
+    b.el.addEventListener("mouseenter", () => {
+      if (tipTimer) clearTimeout(tipTimer);
+      tipTimer = setTimeout(() => showTip(b.el), 150);
+    });
+    b.el.addEventListener("mouseleave", hideTip);
+    b.el.addEventListener("click", hideTip);
+  }
 
   const update = () => {
     const set = activeFormats(view.state);

@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import { EditorState, type TransactionSpec } from "@codemirror/state";
 import { ensureSyntaxTree } from "@codemirror/language";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
@@ -119,11 +119,14 @@ describe("createToolbar", () => {
 });
 
 describe("createToolbar — platform shortcut hints", () => {
+  // The hint lives on aria-label (and the custom tooltip), not the native
+  // `title` attribute — native titles are slow and fire inconsistently in
+  // webviews, so the shortcut was often unreadable.
   function titleFor(action: string, isMac: boolean): string {
     setRenderSettings({ math: true, mermaid: true, toolbar: true, isMac });
     const view = new FakeView("x");
     const { dom } = createToolbar(view as unknown as EditorView, () => {});
-    return dom.querySelector<HTMLElement>(`[data-action="${action}"]`)!.title;
+    return dom.querySelector<HTMLElement>(`[data-action="${action}"]`)!.getAttribute("aria-label") ?? "";
   }
 
   it("shows Mac symbols on macOS", () => {
@@ -141,5 +144,60 @@ describe("createToolbar — platform shortcut hints", () => {
   it("leaves shortcut-less buttons unchanged", () => {
     expect(titleFor("strike", false)).toBe("Strikethrough");
     expect(titleFor("h1", true)).toBe("Heading 1");
+  });
+});
+
+describe("createToolbar — custom tooltip", () => {
+  it("labels buttons via aria-label and does not set the slow native title", () => {
+    setRenderSettings({ math: true, mermaid: true, toolbar: true, isMac: true });
+    const view = new FakeView("x");
+    const { dom } = createToolbar(view as unknown as EditorView, () => {});
+    const bold = dom.querySelector<HTMLElement>('[data-action="bold"]')!;
+    expect(bold.getAttribute("aria-label")).toBe("Bold (⌘B)");
+    expect(bold.title).toBe(""); // native title dropped in favour of the custom tooltip
+  });
+
+  it("shows a custom tooltip on hover after a short delay and hides on leave", () => {
+    vi.useFakeTimers();
+    try {
+      setRenderSettings({ math: true, mermaid: true, toolbar: true, isMac: false });
+      const view = new FakeView("x");
+      const { dom } = createToolbar(view as unknown as EditorView, () => {});
+      document.body.appendChild(dom);
+      const bold = dom.querySelector<HTMLElement>('[data-action="bold"]')!;
+      const tip = dom.querySelector<HTMLElement>(".rm-toolbar-tip")!;
+      expect(tip).toBeTruthy();
+      expect(tip.classList.contains("show")).toBe(false);
+
+      bold.dispatchEvent(new MouseEvent("mouseenter"));
+      expect(tip.classList.contains("show")).toBe(false); // waits out the delay
+      vi.advanceTimersByTime(150);
+      expect(tip.classList.contains("show")).toBe(true);
+      expect(tip.textContent).toBe("Bold (Ctrl+B)");
+
+      bold.dispatchEvent(new MouseEvent("mouseleave"));
+      expect(tip.classList.contains("show")).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("clicking a button dismisses the tooltip", () => {
+    vi.useFakeTimers();
+    try {
+      setRenderSettings({ math: true, mermaid: true, toolbar: true, isMac: false });
+      const view = new FakeView("hi", 0);
+      const { dom } = createToolbar(view as unknown as EditorView, () => {});
+      document.body.appendChild(dom);
+      const strike = dom.querySelector<HTMLElement>('[data-action="strike"]')!;
+      const tip = dom.querySelector<HTMLElement>(".rm-toolbar-tip")!;
+      strike.dispatchEvent(new MouseEvent("mouseenter"));
+      vi.advanceTimersByTime(150);
+      expect(tip.classList.contains("show")).toBe(true);
+      strike.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      expect(tip.classList.contains("show")).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
