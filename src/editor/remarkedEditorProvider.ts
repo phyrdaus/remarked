@@ -274,6 +274,12 @@ export class RemarkedEditorProvider implements vscode.CustomTextEditorProvider {
           // (rememberLastFormat). Both must stay one path; see toggleSource.
           void vscode.commands.executeCommand("remarked.toggleSource");
           break;
+        case "exportHtml":
+          void vscode.commands.executeCommand("remarked.exportHtml");
+          break;
+        case "exportPdf":
+          void vscode.commands.executeCommand("remarked.exportPdf");
+          break;
         case "showError":
           // Webview-originated user notification (our own code's errors).
           // String() guards against a non-string from a compromised renderer.

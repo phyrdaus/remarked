@@ -30,6 +30,8 @@ export type ToHost =
   | { type: "saveImage"; requestId: number; name: string; mime: string; dataBase64: string }
   | { type: "renderAnyway" }
   | { type: "openAsText" }
+  | { type: "exportHtml" }
+  | { type: "exportPdf" }
   | { type: "showError"; message: string }
   | { type: "export:mermaidSvgs"; requestId: number; svgs: (string | null)[] }
   | { type: "test:text"; text: string };

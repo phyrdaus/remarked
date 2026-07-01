@@ -52,6 +52,9 @@ const LAYOUT: Array<ButtonDef | typeof SEP> = [
   { action: "table", icon: "table", title: "Insert table", spec: insertTableSpec },
   SEP,
   { action: "viewSource", icon: "markdown", title: "View Markdown source", shortcut: { mac: "⌥⌘E", other: "Ctrl+Shift+Alt+E" }, onClick: (_view, post) => post({ type: "openAsText" }) },
+  SEP,
+  { action: "exportHtml", icon: "globe", title: "Export to HTML", onClick: (_view, post) => post({ type: "exportHtml" }) },
+  { action: "exportPdf", icon: "file-pdf", title: "Export to PDF", onClick: (_view, post) => post({ type: "exportPdf" }) },
 ];
 
 function openImagePicker(view: EditorView, post: (m: ToHost) => void): void {
