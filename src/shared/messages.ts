@@ -5,6 +5,8 @@ export interface RenderSettings {
   math: boolean;
   mermaid: boolean;
   toolbar: boolean;
+  /** True on macOS: toolbar tooltips show ⌘/⌥ instead of Ctrl/Alt (FIR-76). */
+  isMac: boolean;
 }
 
 /** Host -> webview */
@@ -28,6 +30,9 @@ export type ToHost =
   | { type: "saveImage"; requestId: number; name: string; mime: string; dataBase64: string }
   | { type: "renderAnyway" }
   | { type: "openAsText" }
+  | { type: "exportHtml" }
+  | { type: "exportPdf" }
   | { type: "showError"; message: string }
   | { type: "export:mermaidSvgs"; requestId: number; svgs: (string | null)[] }
-  | { type: "test:text"; text: string };
+  | { type: "test:text"; text: string }
+  | { type: "openPreview" };

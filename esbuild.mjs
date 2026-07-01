@@ -14,7 +14,7 @@ const builds = [
     sourcemap: true,
   },
   {
-    entryPoints: { main: "src/webview/main.ts" },
+    entryPoints: { main: "src/webview/main.ts", preview: "src/webview/preview/main.ts" },
     outdir: "dist/webview",
     bundle: true,
     platform: "browser",

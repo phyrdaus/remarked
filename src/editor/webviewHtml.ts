@@ -28,9 +28,16 @@ ${links}
   body { display: flex; flex-direction: column; }
   #editor { flex: 1 1 auto; min-height: 0; }
   .cm-editor { height: 100%; }
-  .rm-toolbar { display: flex; align-items: center; gap: 2px; flex-wrap: wrap;
+  .rm-toolbar { position: relative; display: flex; align-items: center; gap: 2px; flex-wrap: wrap;
     padding: 5px 8px; border-bottom: 1px solid var(--vscode-panel-border, #3a3a3a);
     background: var(--vscode-editor-background, #1e1e1e); flex: 0 0 auto; }
+  .rm-tip { position: absolute; z-index: 20; display: none; pointer-events: none;
+    white-space: nowrap; font-size: 12px; line-height: 1.4; padding: 2px 7px; border-radius: 4px;
+    background: var(--vscode-editorHoverWidget-background, #252526);
+    color: var(--vscode-editorHoverWidget-foreground, #cccccc);
+    border: 1px solid var(--vscode-editorHoverWidget-border, #454545);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); }
+  .rm-tip.show { display: block; }
   .rm-toolbar button { min-width: 28px; height: 28px; padding: 0 6px; border: none;
     border-radius: 5px; background: transparent; color: var(--vscode-foreground, #ccc);
     cursor: pointer; display: inline-flex; align-items: center; justify-content: center;

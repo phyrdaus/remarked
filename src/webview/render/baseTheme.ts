@@ -122,4 +122,18 @@ export const baseTheme = EditorView.theme({
     padding: "0.1em 0.5em",
     cursor: "pointer",
   },
+  ".cm-rm-table-toolbar .rm-tip": {
+    position: "absolute",
+    zIndex: "20",
+    display: "none",
+    pointerEvents: "none",
+    whiteSpace: "nowrap",
+    fontSize: "0.72em",
+    padding: "0.1em 0.5em",
+    borderRadius: "3px",
+    background: "var(--vscode-editorHoverWidget-background, #252526)",
+    color: "var(--vscode-editorHoverWidget-foreground, #cccccc)",
+    border: "1px solid var(--vscode-editorHoverWidget-border, #454545)",
+  },
+  ".cm-rm-table-toolbar .rm-tip.show": { display: "block" },
 });

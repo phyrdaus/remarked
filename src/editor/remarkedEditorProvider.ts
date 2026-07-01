@@ -188,6 +188,7 @@ export class RemarkedEditorProvider implements vscode.CustomTextEditorProvider {
           math: cfg.get<boolean>("math.enabled", true),
           mermaid: cfg.get<boolean>("mermaid.enabled", true),
           toolbar: cfg.get<boolean>("toolbar.enabled", true),
+          isMac: process.platform === "darwin",
         },
       };
       void webview.postMessage(init);
@@ -272,6 +273,15 @@ export class RemarkedEditorProvider implements vscode.CustomTextEditorProvider {
           // shortcut's behavior — including remembering the chosen view
           // (rememberLastFormat). Both must stay one path; see toggleSource.
           void vscode.commands.executeCommand("remarked.toggleSource");
+          break;
+        case "exportHtml":
+          void vscode.commands.executeCommand("remarked.exportHtml");
+          break;
+        case "exportPdf":
+          void vscode.commands.executeCommand("remarked.exportPdf");
+          break;
+        case "openPreview":
+          void vscode.commands.executeCommand("remarked.openPreview");
           break;
         case "showError":
           // Webview-originated user notification (our own code's errors).

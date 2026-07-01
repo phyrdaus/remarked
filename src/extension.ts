@@ -6,6 +6,7 @@ import { toggleDefaultEditor } from "./commands/toggleDefaultEditor";
 import { WordCountStatus } from "./workbench/wordCountStatus";
 import { exportHtmlCommand } from "./export/exportService";
 import { exportPdfCommand } from "./export/pdfExport";
+import { PreviewPanelManager } from "./preview/previewPanel";
 
 export interface RemarkedTestApi {
   postToLatestWebview: RemarkedEditorProvider["postToLatestWebview"];
@@ -14,6 +15,7 @@ export interface RemarkedTestApi {
 
 export function activate(context: vscode.ExtensionContext): RemarkedTestApi | undefined {
   const provider = new RemarkedEditorProvider(context);
+  const preview = new PreviewPanelManager(context.extensionUri);
   context.subscriptions.push(
     new WordCountStatus(provider),
     vscode.window.registerCustomEditorProvider(RemarkedEditorProvider.viewType, provider, {
@@ -26,7 +28,12 @@ export function activate(context: vscode.ExtensionContext): RemarkedTestApi | un
     vscode.commands.registerCommand("remarked.jumpToHeading", () => jumpToHeading(provider)),
     vscode.commands.registerCommand("remarked.toggleDefaultEditor", toggleDefaultEditor),
     vscode.commands.registerCommand("remarked.exportHtml", () => exportHtmlCommand(provider)),
-    vscode.commands.registerCommand("remarked.exportPdf", () => exportPdfCommand(provider))
+    vscode.commands.registerCommand("remarked.exportPdf", () => exportPdfCommand(provider)),
+    { dispose: () => preview.dispose() },
+    vscode.commands.registerCommand("remarked.openPreview", () => {
+      const doc = provider.activeDocument ?? vscode.window.activeTextEditor?.document;
+      if (doc) preview.open(doc);
+    })
   );
   if (context.extensionMode === vscode.ExtensionMode.Test) {
     return {

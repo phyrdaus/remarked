@@ -4,6 +4,8 @@ import type { ToHost } from "../../shared/messages";
 import { toggleMarkSpec, insertLinkSpec } from "../markdownCommands";
 import { handleImageTransfer } from "../imagePaste";
 import { activeFormats, type ActionId } from "./activeFormats";
+import { attachTooltip } from "./tooltip";
+import { getRenderSettings } from "../render/settings";
 import {
   setHeadingSpec, toggleBlockquoteSpec, toggleListSpec,
   insertTableSpec, insertHorizontalRuleSpec, wrapCodeBlockSpec,
@@ -16,6 +18,8 @@ interface ButtonDef {
   /** Text label (letter buttons: B, I, S, H1…). */
   label?: string;
   title: string;
+  /** Per-platform key hint appended to `title` in parens (FIR-76). */
+  shortcut?: { mac: string; other: string };
   /** Active-state id; omitted for inserts/wraps that are never lit. */
   active?: ActionId;
   /** Build the edit; undefined for the image button (handled specially). */
@@ -27,10 +31,10 @@ interface ButtonDef {
 const SEP = "sep" as const;
 
 const LAYOUT: Array<ButtonDef | typeof SEP> = [
-  { action: "bold", label: "B", title: "Bold (⌘B)", active: "bold", spec: (s) => toggleMarkSpec(s, "**", "StrongEmphasis") },
-  { action: "italic", label: "I", title: "Italic (⌘I)", active: "italic", spec: (s) => toggleMarkSpec(s, "*", "Emphasis") },
+  { action: "bold", label: "B", title: "Bold", shortcut: { mac: "⌘B", other: "Ctrl+B" }, active: "bold", spec: (s) => toggleMarkSpec(s, "**", "StrongEmphasis") },
+  { action: "italic", label: "I", title: "Italic", shortcut: { mac: "⌘I", other: "Ctrl+I" }, active: "italic", spec: (s) => toggleMarkSpec(s, "*", "Emphasis") },
   { action: "strike", label: "S", title: "Strikethrough", active: "strike", spec: (s) => toggleMarkSpec(s, "~~", "Strikethrough") },
-  { action: "code", icon: "code", title: "Inline code (⌘`)", active: "code", spec: (s) => toggleMarkSpec(s, "`", "InlineCode") },
+  { action: "code", icon: "code", title: "Inline code", shortcut: { mac: "⌘`", other: "Ctrl+`" }, active: "code", spec: (s) => toggleMarkSpec(s, "`", "InlineCode") },
   SEP,
   { action: "h1", label: "H1", title: "Heading 1", active: "h1", spec: (s) => setHeadingSpec(s, 1) },
   { action: "h2", label: "H2", title: "Heading 2", active: "h2", spec: (s) => setHeadingSpec(s, 2) },
@@ -44,11 +48,15 @@ const LAYOUT: Array<ButtonDef | typeof SEP> = [
   { action: "codeblock", icon: "symbol-namespace", title: "Code block", spec: wrapCodeBlockSpec },
   { action: "hr", icon: "horizontal-rule", title: "Horizontal rule", spec: insertHorizontalRuleSpec },
   SEP,
-  { action: "link", icon: "link", title: "Link (⌘K)", spec: insertLinkSpec },
+  { action: "link", icon: "link", title: "Link", shortcut: { mac: "⌘K", other: "Ctrl+K" }, spec: insertLinkSpec },
   { action: "image", icon: "device-camera", title: "Insert image", onClick: openImagePicker },
   { action: "table", icon: "table", title: "Insert table", spec: insertTableSpec },
   SEP,
-  { action: "viewSource", icon: "markdown", title: "View Markdown source (⌥⌘E)", onClick: (_view, post) => post({ type: "openAsText" }) },
+  { action: "viewSource", icon: "markdown", title: "View Markdown source", shortcut: { mac: "⌥⌘E", other: "Ctrl+Shift+Alt+E" }, onClick: (_view, post) => post({ type: "openAsText" }) },
+  SEP,
+  { action: "exportHtml", icon: "globe", title: "Export to HTML", onClick: (_view, post) => post({ type: "exportHtml" }) },
+  { action: "exportPdf", icon: "file-pdf", title: "Export to PDF", onClick: (_view, post) => post({ type: "exportPdf" }) },
+  { action: "preview", icon: "open-preview", title: "Open Preview to the Side", onClick: (_view, post) => post({ type: "openPreview" }) },
 ];
 
 function openImagePicker(view: EditorView, post: (m: ToHost) => void): void {
@@ -76,6 +84,7 @@ export function createToolbar(
   dom.className = "rm-toolbar";
   dom.setAttribute("contenteditable", "false");
   const buttons: Array<{ el: HTMLElement; active?: ActionId }> = [];
+  const isMac = getRenderSettings().isMac;
 
   for (const item of LAYOUT) {
     if (item === SEP) {
@@ -87,7 +96,14 @@ export function createToolbar(
     const btn = document.createElement("button");
     btn.type = "button";
     btn.dataset.action = item.action;
-    btn.title = item.title;
+    // Label lives on aria-label + a custom tooltip, not the native `title`:
+    // native titles are slow (~1s) and fire inconsistently in webviews, so
+    // the shortcut hint was often unreadable.
+    const label = item.shortcut
+      ? `${item.title} (${isMac ? item.shortcut.mac : item.shortcut.other})`
+      : item.title;
+    btn.setAttribute("aria-label", label);
+    btn.dataset.tip = label;
     if (item.icon) {
       const i = document.createElement("span");
       i.className = `codicon codicon-${item.icon}`;
@@ -107,6 +123,9 @@ export function createToolbar(
 
   // Clicks must not steal the selection from the document.
   dom.addEventListener("mousedown", (e) => e.preventDefault());
+
+  // Fast custom tooltip (native `title` is slow/flaky in webviews).
+  attachTooltip(dom, buttons.map((b) => b.el));
 
   const update = () => {
     const set = activeFormats(view.state);

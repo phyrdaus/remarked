@@ -1,9 +1,10 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import { EditorState, type TransactionSpec } from "@codemirror/state";
 import { ensureSyntaxTree } from "@codemirror/language";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import type { EditorView } from "@codemirror/view";
 import { createToolbar } from "../../src/webview/toolbar/view";
+import { setRenderSettings } from "../../src/webview/render/settings";
 
 afterEach(() => document.body.replaceChildren());
 
@@ -44,7 +45,7 @@ describe("createToolbar", () => {
       "bullet", "ordered", "task",
       "blockquote", "codeblock", "hr",
       "link", "image", "table",
-      "viewSource",
+      "viewSource", "exportHtml", "exportPdf", "preview",
     ]);
   });
 
@@ -54,6 +55,25 @@ describe("createToolbar", () => {
     const { dom } = createToolbar(view as unknown as EditorView, (m) => posted.push(m));
     click(dom, "viewSource");
     expect(posted).toEqual([{ type: "openAsText" }]);
+  });
+
+  it("export buttons post the matching host message", () => {
+    setRenderSettings({ math: true, mermaid: true, toolbar: true, isMac: false });
+    const posted: Array<{ type: string }> = [];
+    const view = new FakeView("x");
+    const { dom } = createToolbar(view as unknown as EditorView, (m) => posted.push(m));
+    click(dom, "exportHtml");
+    click(dom, "exportPdf");
+    expect(posted).toEqual([{ type: "exportHtml" }, { type: "exportPdf" }]);
+  });
+
+  it("preview button posts openPreview", () => {
+    setRenderSettings({ math: true, mermaid: true, toolbar: true, isMac: false });
+    const posted: Array<{ type: string }> = [];
+    const view = new FakeView("x");
+    const { dom } = createToolbar(view as unknown as EditorView, (m) => posted.push(m));
+    click(dom, "preview");
+    expect(posted).toEqual([{ type: "openPreview" }]);
   });
 
   it("a bold click dispatches the bold toggle to the document", () => {
@@ -95,5 +115,103 @@ describe("createToolbar", () => {
     input!.dispatchEvent(new Event("change"));
     await new Promise((r) => setTimeout(r, 0));
     expect(posted.some((m) => m.type === "saveImage")).toBe(true);
+  });
+});
+
+describe("createToolbar — platform shortcut hints", () => {
+  // The hint lives on aria-label (and the custom tooltip), not the native
+  // `title` attribute — native titles are slow and fire inconsistently in
+  // webviews, so the shortcut was often unreadable.
+  function titleFor(action: string, isMac: boolean): string {
+    setRenderSettings({ math: true, mermaid: true, toolbar: true, isMac });
+    const view = new FakeView("x");
+    const { dom } = createToolbar(view as unknown as EditorView, () => {});
+    return dom.querySelector<HTMLElement>(`[data-action="${action}"]`)!.getAttribute("aria-label") ?? "";
+  }
+
+  it("shows Mac symbols on macOS", () => {
+    expect(titleFor("bold", true)).toBe("Bold (⌘B)");
+    expect(titleFor("link", true)).toBe("Link (⌘K)");
+    expect(titleFor("viewSource", true)).toBe("View Markdown source (⌥⌘E)");
+  });
+
+  it("shows Ctrl/Alt on other platforms", () => {
+    expect(titleFor("bold", false)).toBe("Bold (Ctrl+B)");
+    expect(titleFor("link", false)).toBe("Link (Ctrl+K)");
+    expect(titleFor("viewSource", false)).toBe("View Markdown source (Ctrl+Shift+Alt+E)");
+  });
+
+  it("leaves shortcut-less buttons unchanged", () => {
+    expect(titleFor("strike", false)).toBe("Strikethrough");
+    expect(titleFor("h1", true)).toBe("Heading 1");
+  });
+});
+
+describe("createToolbar — custom tooltip", () => {
+  it("labels buttons via aria-label and does not set the slow native title", () => {
+    setRenderSettings({ math: true, mermaid: true, toolbar: true, isMac: true });
+    const view = new FakeView("x");
+    const { dom } = createToolbar(view as unknown as EditorView, () => {});
+    const bold = dom.querySelector<HTMLElement>('[data-action="bold"]')!;
+    expect(bold.getAttribute("aria-label")).toBe("Bold (⌘B)");
+    expect(bold.title).toBe(""); // native title dropped in favour of the custom tooltip
+  });
+
+  it("shows a custom tooltip on hover after a short delay and hides on leave", () => {
+    vi.useFakeTimers();
+    try {
+      setRenderSettings({ math: true, mermaid: true, toolbar: true, isMac: false });
+      const view = new FakeView("x");
+      const { dom } = createToolbar(view as unknown as EditorView, () => {});
+      document.body.appendChild(dom);
+      const bold = dom.querySelector<HTMLElement>('[data-action="bold"]')!;
+      const tip = dom.querySelector<HTMLElement>(".rm-tip")!;
+      expect(tip).toBeTruthy();
+      expect(tip.classList.contains("show")).toBe(false);
+
+      bold.dispatchEvent(new MouseEvent("mouseenter"));
+      expect(tip.classList.contains("show")).toBe(false); // waits out the delay
+      vi.advanceTimersByTime(150);
+      expect(tip.classList.contains("show")).toBe(true);
+      expect(tip.textContent).toBe("Bold (Ctrl+B)");
+
+      bold.dispatchEvent(new MouseEvent("mouseleave"));
+      expect(tip.classList.contains("show")).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("reveals the tooltip on keyboard focus and hides on blur", () => {
+    setRenderSettings({ math: true, mermaid: true, toolbar: true, isMac: false });
+    const view = new FakeView("x");
+    const { dom } = createToolbar(view as unknown as EditorView, () => {});
+    document.body.appendChild(dom);
+    const bold = dom.querySelector<HTMLElement>('[data-action="bold"]')!;
+    const tip = dom.querySelector<HTMLElement>(".rm-tip")!;
+    bold.dispatchEvent(new FocusEvent("focus"));
+    expect(tip.classList.contains("show")).toBe(true);
+    expect(tip.textContent).toBe("Bold (Ctrl+B)");
+    bold.dispatchEvent(new FocusEvent("blur"));
+    expect(tip.classList.contains("show")).toBe(false);
+  });
+
+  it("clicking a button dismisses the tooltip", () => {
+    vi.useFakeTimers();
+    try {
+      setRenderSettings({ math: true, mermaid: true, toolbar: true, isMac: false });
+      const view = new FakeView("hi", 0);
+      const { dom } = createToolbar(view as unknown as EditorView, () => {});
+      document.body.appendChild(dom);
+      const strike = dom.querySelector<HTMLElement>('[data-action="strike"]')!;
+      const tip = dom.querySelector<HTMLElement>(".rm-tip")!;
+      strike.dispatchEvent(new MouseEvent("mouseenter"));
+      vi.advanceTimersByTime(150);
+      expect(tip.classList.contains("show")).toBe(true);
+      strike.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      expect(tip.classList.contains("show")).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

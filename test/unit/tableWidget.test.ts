@@ -9,6 +9,7 @@ import { parseTableModel } from "../../src/webview/render/table/model";
 import { addColumnEdit, setAlignEdit } from "../../src/webview/render/table/edits";
 import { tableNode } from "./tableHelpers";
 import { exitTableSource } from "../../src/webview/render/table/commands";
+import { setRenderSettings } from "../../src/webview/render/settings";
 
 const TABLE = "| Name | Age |\n| :--- | ---: |\n| Ada \\| Co | 36 |";
 
@@ -395,5 +396,45 @@ describe("TableWidget toolbar", () => {
     const { view, wrap } = setup(BAR_DOC);
     clickButton(wrap, "source");
     expect(view.state.selection.main.head).toBe(0);
+  });
+});
+
+describe("table toolbar — platform shortcut hint (FIR-76)", () => {
+  afterEach(() => setRenderSettings({ math: true, mermaid: true, toolbar: true, isMac: false }));
+
+  // The hint lives on aria-label + the custom tooltip, not the native title.
+  function sourceTitle(isMac: boolean): string {
+    setRenderSettings({ math: true, mermaid: true, toolbar: true, isMac });
+    const { wrap } = setup(BAR_DOC);
+    return wrap.querySelector<HTMLElement>('[data-action="source"]')!.getAttribute("aria-label") ?? "";
+  }
+
+  it("uses ⌘/ on macOS", () => expect(sourceTitle(true)).toBe("Edit as markdown (⌘/)"));
+  it("uses Ctrl+/ elsewhere", () => expect(sourceTitle(false)).toBe("Edit as markdown (Ctrl+/)"));
+
+  it("does not set the slow native title", () => {
+    setRenderSettings({ math: true, mermaid: true, toolbar: true, isMac: false });
+    const { wrap } = setup(BAR_DOC);
+    expect(wrap.querySelector<HTMLElement>('[data-action="source"]')!.title).toBe("");
+  });
+
+  it("shows a custom tooltip on hover after a short delay", () => {
+    vi.useFakeTimers();
+    try {
+      setRenderSettings({ math: true, mermaid: true, toolbar: true, isMac: false });
+      const { wrap } = setup(BAR_DOC);
+      const src = wrap.querySelector<HTMLElement>('[data-action="source"]')!;
+      const tip = wrap.querySelector<HTMLElement>(".cm-rm-table-toolbar .rm-tip")!;
+      expect(tip).toBeTruthy();
+      expect(tip.classList.contains("show")).toBe(false);
+      src.dispatchEvent(new MouseEvent("mouseenter"));
+      vi.advanceTimersByTime(150);
+      expect(tip.classList.contains("show")).toBe(true);
+      expect(tip.textContent).toBe("Edit as markdown (Ctrl+/)");
+      src.dispatchEvent(new MouseEvent("mouseleave"));
+      expect(tip.classList.contains("show")).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
