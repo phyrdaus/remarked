@@ -280,6 +280,9 @@ export class RemarkedEditorProvider implements vscode.CustomTextEditorProvider {
         case "exportPdf":
           void vscode.commands.executeCommand("remarked.exportPdf");
           break;
+        case "openPreview":
+          void vscode.commands.executeCommand("remarked.openPreview");
+          break;
         case "showError":
           // Webview-originated user notification (our own code's errors).
           // String() guards against a non-string from a compromised renderer.

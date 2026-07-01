@@ -45,7 +45,7 @@ describe("createToolbar", () => {
       "bullet", "ordered", "task",
       "blockquote", "codeblock", "hr",
       "link", "image", "table",
-      "viewSource", "exportHtml", "exportPdf",
+      "viewSource", "exportHtml", "exportPdf", "preview",
     ]);
   });
 
@@ -65,6 +65,15 @@ describe("createToolbar", () => {
     click(dom, "exportHtml");
     click(dom, "exportPdf");
     expect(posted).toEqual([{ type: "exportHtml" }, { type: "exportPdf" }]);
+  });
+
+  it("preview button posts openPreview", () => {
+    setRenderSettings({ math: true, mermaid: true, toolbar: true, isMac: false });
+    const posted: Array<{ type: string }> = [];
+    const view = new FakeView("x");
+    const { dom } = createToolbar(view as unknown as EditorView, (m) => posted.push(m));
+    click(dom, "preview");
+    expect(posted).toEqual([{ type: "openPreview" }]);
   });
 
   it("a bold click dispatches the bold toggle to the document", () => {

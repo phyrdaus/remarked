@@ -34,4 +34,5 @@ export type ToHost =
   | { type: "exportPdf" }
   | { type: "showError"; message: string }
   | { type: "export:mermaidSvgs"; requestId: number; svgs: (string | null)[] }
-  | { type: "test:text"; text: string };
+  | { type: "test:text"; text: string }
+  | { type: "openPreview" };

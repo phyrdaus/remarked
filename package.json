@@ -133,6 +133,12 @@
         "command": "remarked.exportPdf",
         "category": "Remarked.md",
         "title": "Export to PDF"
+      },
+      {
+        "command": "remarked.openPreview",
+        "category": "Remarked.md",
+        "title": "Open Preview to the Side",
+        "icon": "$(open-preview)"
       }
     ],
     "keybindings": [
@@ -153,6 +159,11 @@
       "editor/title": [
         {
           "command": "remarked.toggleSource",
+          "when": "resourceExtname =~ /^\\.(md|markdown)$/i",
+          "group": "navigation"
+        },
+        {
+          "command": "remarked.openPreview",
           "when": "resourceExtname =~ /^\\.(md|markdown)$/i",
           "group": "navigation"
         }
@@ -181,6 +192,10 @@
         {
           "command": "remarked.exportPdf",
           "when": "activeCustomEditorId == 'remarked.editor'"
+        },
+        {
+          "command": "remarked.openPreview",
+          "when": "resourceExtname =~ /^\\.(md|markdown)$/i"
         }
       ]
     }

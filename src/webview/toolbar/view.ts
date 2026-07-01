@@ -55,6 +55,7 @@ const LAYOUT: Array<ButtonDef | typeof SEP> = [
   SEP,
   { action: "exportHtml", icon: "globe", title: "Export to HTML", onClick: (_view, post) => post({ type: "exportHtml" }) },
   { action: "exportPdf", icon: "file-pdf", title: "Export to PDF", onClick: (_view, post) => post({ type: "exportPdf" }) },
+  { action: "preview", icon: "open-preview", title: "Open Preview to the Side", onClick: (_view, post) => post({ type: "openPreview" }) },
 ];
 
 function openImagePicker(view: EditorView, post: (m: ToHost) => void): void {
