@@ -4,6 +4,7 @@ import type { ToHost } from "../../shared/messages";
 import { toggleMarkSpec, insertLinkSpec } from "../markdownCommands";
 import { handleImageTransfer } from "../imagePaste";
 import { activeFormats, type ActionId } from "./activeFormats";
+import { attachTooltip } from "./tooltip";
 import { getRenderSettings } from "../render/settings";
 import {
   setHeadingSpec, toggleBlockquoteSpec, toggleListSpec,
@@ -123,33 +124,8 @@ export function createToolbar(
   // Clicks must not steal the selection from the document.
   dom.addEventListener("mousedown", (e) => e.preventDefault());
 
-  // Custom tooltip: a single element the buttons share. Replaces the native
-  // `title` attribute, which is slow to appear and fires unreliably in webviews.
-  const tip = document.createElement("div");
-  tip.className = "rm-toolbar-tip";
-  tip.setAttribute("role", "tooltip");
-  dom.appendChild(tip);
-  let tipTimer: ReturnType<typeof setTimeout> | undefined;
-  const hideTip = () => {
-    if (tipTimer) { clearTimeout(tipTimer); tipTimer = undefined; }
-    tip.classList.remove("show");
-  };
-  const showTip = (el: HTMLElement) => {
-    const label = el.dataset.tip;
-    if (!label) return;
-    tip.textContent = label;
-    tip.style.left = `${el.offsetLeft}px`;
-    tip.style.top = `${el.offsetTop + el.offsetHeight + 4}px`;
-    tip.classList.add("show");
-  };
-  for (const b of buttons) {
-    b.el.addEventListener("mouseenter", () => {
-      if (tipTimer) clearTimeout(tipTimer);
-      tipTimer = setTimeout(() => showTip(b.el), 150);
-    });
-    b.el.addEventListener("mouseleave", hideTip);
-    b.el.addEventListener("click", hideTip);
-  }
+  // Fast custom tooltip (native `title` is slow/flaky in webviews).
+  attachTooltip(dom, buttons.map((b) => b.el));
 
   const update = () => {
     const set = activeFormats(view.state);

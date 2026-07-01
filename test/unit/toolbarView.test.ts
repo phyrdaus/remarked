@@ -165,7 +165,7 @@ describe("createToolbar — custom tooltip", () => {
       const { dom } = createToolbar(view as unknown as EditorView, () => {});
       document.body.appendChild(dom);
       const bold = dom.querySelector<HTMLElement>('[data-action="bold"]')!;
-      const tip = dom.querySelector<HTMLElement>(".rm-toolbar-tip")!;
+      const tip = dom.querySelector<HTMLElement>(".rm-tip")!;
       expect(tip).toBeTruthy();
       expect(tip.classList.contains("show")).toBe(false);
 
@@ -190,7 +190,7 @@ describe("createToolbar — custom tooltip", () => {
       const { dom } = createToolbar(view as unknown as EditorView, () => {});
       document.body.appendChild(dom);
       const strike = dom.querySelector<HTMLElement>('[data-action="strike"]')!;
-      const tip = dom.querySelector<HTMLElement>(".rm-toolbar-tip")!;
+      const tip = dom.querySelector<HTMLElement>(".rm-tip")!;
       strike.dispatchEvent(new MouseEvent("mouseenter"));
       vi.advanceTimersByTime(150);
       expect(tip.classList.contains("show")).toBe(true);

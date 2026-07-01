@@ -4,6 +4,7 @@ import { syntaxTree } from "@codemirror/language";
 import type { SyntaxNode, SyntaxNodeRef } from "@lezer/common";
 import { anyLineRevealed } from "../reveal";
 import { getRenderSettings } from "../settings";
+import { attachTooltip } from "../../toolbar/tooltip";
 import { parseTableModel, displayCellText, type ColumnAlign, type TableModel } from "./model";
 import { cellEdit, addRowEdit, addColumnEdit, setAlignEdit } from "./edits";
 import type { HandlerCtx } from "../buildDecorations"; // type-only: no runtime cycle
@@ -100,14 +101,20 @@ function renderToolbar(): HTMLElement {
   bar.className = "cm-rm-table-toolbar";
   bar.setAttribute("contenteditable", "false");
   const isMac = getRenderSettings().isMac;
+  const btns: HTMLElement[] = [];
   for (const [action, label, title, shortcut] of TOOLBAR_BUTTONS) {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.dataset.action = action;
     btn.textContent = label;
-    btn.title = shortcut ? `${title} (${isMac ? shortcut.mac : shortcut.other})` : title;
+    // Label on aria-label + the custom tooltip, not the slow/flaky native title.
+    const tipText = shortcut ? `${title} (${isMac ? shortcut.mac : shortcut.other})` : title;
+    btn.setAttribute("aria-label", tipText);
+    btn.dataset.tip = tipText;
     bar.appendChild(btn);
+    btns.push(btn);
   }
+  attachTooltip(bar, btns);
   return bar;
 }
 
