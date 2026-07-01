@@ -164,7 +164,7 @@
         },
         {
           "command": "remarked.openPreview",
-          "when": "resourceExtname =~ /^\\.(md|markdown)$/i",
+          "when": "activeCustomEditorId == 'remarked.editor' || resourceLangId == markdown",
           "group": "navigation"
         }
       ],
@@ -195,7 +195,7 @@
         },
         {
           "command": "remarked.openPreview",
-          "when": "resourceExtname =~ /^\\.(md|markdown)$/i"
+          "when": "activeCustomEditorId == 'remarked.editor' || resourceLangId == markdown"
         }
       ]
     }

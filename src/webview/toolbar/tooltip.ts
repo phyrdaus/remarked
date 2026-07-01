@@ -25,9 +25,11 @@ export function attachTooltip(container: HTMLElement, buttons: HTMLElement[]): v
     const label = el.dataset.tip;
     if (!label) return;
     tip.textContent = label;
-    tip.style.left = `${el.offsetLeft}px`;
-    tip.style.top = `${el.offsetTop + el.offsetHeight + 4}px`;
     tip.classList.add("show");
+    // Clamp within the container so a long hint doesn't clip off a narrow panel.
+    const maxLeft = Math.max(0, container.clientWidth - tip.offsetWidth);
+    tip.style.left = `${Math.min(el.offsetLeft, maxLeft)}px`;
+    tip.style.top = `${el.offsetTop + el.offsetHeight + 4}px`;
   };
 
   for (const el of buttons) {
@@ -37,5 +39,8 @@ export function attachTooltip(container: HTMLElement, buttons: HTMLElement[]): v
     });
     el.addEventListener("mouseleave", hide);
     el.addEventListener("click", hide);
+    // Keyboard users get the label/shortcut on focus (there is no native title now).
+    el.addEventListener("focus", () => { hide(); show(el); });
+    el.addEventListener("blur", hide);
   }
 }

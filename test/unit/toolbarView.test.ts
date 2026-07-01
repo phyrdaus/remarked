@@ -182,6 +182,20 @@ describe("createToolbar — custom tooltip", () => {
     }
   });
 
+  it("reveals the tooltip on keyboard focus and hides on blur", () => {
+    setRenderSettings({ math: true, mermaid: true, toolbar: true, isMac: false });
+    const view = new FakeView("x");
+    const { dom } = createToolbar(view as unknown as EditorView, () => {});
+    document.body.appendChild(dom);
+    const bold = dom.querySelector<HTMLElement>('[data-action="bold"]')!;
+    const tip = dom.querySelector<HTMLElement>(".rm-tip")!;
+    bold.dispatchEvent(new FocusEvent("focus"));
+    expect(tip.classList.contains("show")).toBe(true);
+    expect(tip.textContent).toBe("Bold (Ctrl+B)");
+    bold.dispatchEvent(new FocusEvent("blur"));
+    expect(tip.classList.contains("show")).toBe(false);
+  });
+
   it("clicking a button dismisses the tooltip", () => {
     vi.useFakeTimers();
     try {
