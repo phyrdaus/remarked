@@ -9,6 +9,7 @@ import { parseTableModel } from "../../src/webview/render/table/model";
 import { addColumnEdit, setAlignEdit } from "../../src/webview/render/table/edits";
 import { tableNode } from "./tableHelpers";
 import { exitTableSource } from "../../src/webview/render/table/commands";
+import { setRenderSettings } from "../../src/webview/render/settings";
 
 const TABLE = "| Name | Age |\n| :--- | ---: |\n| Ada \\| Co | 36 |";
 
@@ -396,4 +397,17 @@ describe("TableWidget toolbar", () => {
     clickButton(wrap, "source");
     expect(view.state.selection.main.head).toBe(0);
   });
+});
+
+describe("table toolbar — platform shortcut hint (FIR-76)", () => {
+  afterEach(() => setRenderSettings({ math: true, mermaid: true, toolbar: true, isMac: false }));
+
+  function sourceTitle(isMac: boolean): string {
+    setRenderSettings({ math: true, mermaid: true, toolbar: true, isMac });
+    const { wrap } = setup(BAR_DOC);
+    return wrap.querySelector<HTMLElement>('[data-action="source"]')!.title;
+  }
+
+  it("uses ⌘/ on macOS", () => expect(sourceTitle(true)).toBe("Edit as markdown (⌘/)"));
+  it("uses Ctrl+/ elsewhere", () => expect(sourceTitle(false)).toBe("Edit as markdown (Ctrl+/)"));
 });
