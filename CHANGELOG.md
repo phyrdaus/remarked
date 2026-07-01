@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.3.0 - 2026-07-01
+
+- **Preview panel.** Open a live, read-only **Preview to the Side** (toolbar
+  button, `editor/title` icon, or the `Remarked.md: Open Preview to the Side`
+  command). It renders the whole document with Remarked's own pipeline — math,
+  Mermaid, images, and custom CSS all match the editor — and updates as you
+  type. Because it's a rendered view, selecting and copying yields formatted
+  rich text (paste into a document or email with bold, links, etc. intact),
+  unaffected by the inline source markers.
+- **Export buttons.** **Export to HTML** and **Export to PDF** are now on the
+  formatting toolbar, alongside the existing commands.
+- **Fix:** toolbar and table tooltips now show platform-correct shortcut keys —
+  `Ctrl`/`Alt` on Windows and Linux, `⌘`/`⌥` on macOS — instead of always
+  showing the macOS symbols.
+
 ## 0.2.3 - 2026-06-28
 
 - **Smaller package.** Ship woff2-only KaTeX fonts and exclude repo-only
