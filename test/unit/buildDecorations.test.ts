@@ -256,10 +256,10 @@ describe("buildDecorations — tables", () => {
 describe("buildDecorations — render settings", () => {
   const MERMAID_DOC = "```mermaid\ngraph TD; A-->B\n```\n\ntail";
 
-  afterEach(() => setRenderSettings({ math: true, mermaid: true, toolbar: true }));
+  afterEach(() => setRenderSettings({ math: true, mermaid: true, toolbar: true, isMac: false }));
 
   it("renders mermaid fences as plain code blocks when mermaid is disabled", () => {
-    setRenderSettings({ math: true, mermaid: false, toolbar: true });
+    setRenderSettings({ math: true, mermaid: false, toolbar: true, isMac: false });
     const d = summarize(makeState(MERMAID_DOC, MERMAID_DOC.length));
     expect(d.filter((x) => x.kind === "widget")).toEqual([]);
     expect(d).toContainEqual({ from: 0, to: 0, kind: "cm-rm-codeblock" });

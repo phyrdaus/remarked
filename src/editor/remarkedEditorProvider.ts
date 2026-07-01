@@ -188,6 +188,7 @@ export class RemarkedEditorProvider implements vscode.CustomTextEditorProvider {
           math: cfg.get<boolean>("math.enabled", true),
           mermaid: cfg.get<boolean>("mermaid.enabled", true),
           toolbar: cfg.get<boolean>("toolbar.enabled", true),
+          isMac: process.platform === "darwin",
         },
       };
       void webview.postMessage(init);

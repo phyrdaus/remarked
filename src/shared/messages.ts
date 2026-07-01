@@ -5,6 +5,8 @@ export interface RenderSettings {
   math: boolean;
   mermaid: boolean;
   toolbar: boolean;
+  /** True on macOS: toolbar tooltips show ⌘/⌥ instead of Ctrl/Alt (FIR-76). */
+  isMac: boolean;
 }
 
 /** Host -> webview */

@@ -4,6 +4,7 @@ import { ensureSyntaxTree } from "@codemirror/language";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import type { EditorView } from "@codemirror/view";
 import { createToolbar } from "../../src/webview/toolbar/view";
+import { setRenderSettings } from "../../src/webview/render/settings";
 
 afterEach(() => document.body.replaceChildren());
 
@@ -95,5 +96,31 @@ describe("createToolbar", () => {
     input!.dispatchEvent(new Event("change"));
     await new Promise((r) => setTimeout(r, 0));
     expect(posted.some((m) => m.type === "saveImage")).toBe(true);
+  });
+});
+
+describe("createToolbar — platform shortcut hints", () => {
+  function titleFor(action: string, isMac: boolean): string {
+    setRenderSettings({ math: true, mermaid: true, toolbar: true, isMac });
+    const view = new FakeView("x");
+    const { dom } = createToolbar(view as unknown as EditorView, () => {});
+    return dom.querySelector<HTMLElement>(`[data-action="${action}"]`)!.title;
+  }
+
+  it("shows Mac symbols on macOS", () => {
+    expect(titleFor("bold", true)).toBe("Bold (⌘B)");
+    expect(titleFor("link", true)).toBe("Link (⌘K)");
+    expect(titleFor("viewSource", true)).toBe("View Markdown source (⌥⌘E)");
+  });
+
+  it("shows Ctrl/Alt on other platforms", () => {
+    expect(titleFor("bold", false)).toBe("Bold (Ctrl+B)");
+    expect(titleFor("link", false)).toBe("Link (Ctrl+K)");
+    expect(titleFor("viewSource", false)).toBe("View Markdown source (Ctrl+Shift+Alt+E)");
+  });
+
+  it("leaves shortcut-less buttons unchanged", () => {
+    expect(titleFor("strike", false)).toBe("Strikethrough");
+    expect(titleFor("h1", true)).toBe("Heading 1");
   });
 });
