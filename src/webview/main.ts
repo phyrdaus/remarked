@@ -51,7 +51,11 @@ let localVersion = 0;
 let lastReportedLine = -1;
 let caretTimer: ReturnType<typeof setTimeout> | undefined;
 function reportCaretLine(line: number, fromPreviewReveal: boolean): void {
-  if (fromPreviewReveal) { lastReportedLine = line; return; } // swallow the echo
+  if (fromPreviewReveal) {
+    lastReportedLine = line;
+    if (caretTimer) { clearTimeout(caretTimer); caretTimer = undefined; }
+    return; // swallow the echo AND cancel any pending stale report
+  }
   if (line === lastReportedLine) return;
   lastReportedLine = line;
   if (caretTimer) clearTimeout(caretTimer);
