@@ -148,6 +148,55 @@ export const baseThemeSpec: Record<string, Record<string, string>> = {
     border: "1px solid var(--vscode-editorHoverWidget-border, #454545)",
   },
   ".cm-rm-table-toolbar .rm-tip.show": { display: "block" },
+  // Find/replace panel (FIR-84), styled to match the formatting toolbar:
+  // editor-background chrome with a panel-border divider, and transparent
+  // buttons with the toolbar's rounded hover.
+  ".cm-panels": {
+    background: "var(--vscode-editor-background, #1e1e1e)",
+    color: "var(--vscode-foreground, #cccccc)",
+    borderBottom: "1px solid var(--vscode-panel-border, #3a3a3a)",
+  },
+  ".cm-panel.cm-search": { padding: "7px 8px", fontFamily: "system-ui, sans-serif" },
+  ".cm-panel.cm-search input, .cm-panel.cm-search button, .cm-panel.cm-search label": {
+    fontSize: "13px",
+  },
+  // Vertically center each checkbox with its label text.
+  ".cm-panel.cm-search label": {
+    color: "var(--vscode-foreground, #cccccc)",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "4px",
+  },
+  ".cm-panel.cm-search input[type=checkbox]": {
+    width: "15px",
+    height: "15px",
+    margin: "0",
+  },
+  ".cm-panel.cm-search input[name=search], .cm-panel.cm-search input[name=replace]": {
+    background: "var(--vscode-input-background, #3c3c3c)",
+    color: "var(--vscode-input-foreground, #cccccc)",
+    border: "1px solid var(--vscode-input-border, #3c3c3c)",
+    borderRadius: "5px",
+    padding: "5px 8px",
+  },
+  ".cm-panel.cm-search .cm-button": {
+    background: "transparent",
+    backgroundImage: "none",
+    color: "var(--vscode-foreground, #cccccc)",
+    border: "1px solid var(--vscode-input-border, #a3a3a3)",
+    borderRadius: "5px",
+    padding: "4px 12px",
+    cursor: "pointer",
+  },
+  ".cm-panel.cm-search .cm-button:hover": {
+    background: "var(--vscode-toolbar-hoverBackground, #ffffff14)",
+  },
+  ".cm-searchMatch": {
+    background: "var(--vscode-editor-findMatchHighlightBackground, rgba(234,92,0,.33))",
+  },
+  ".cm-searchMatch-selected": {
+    background: "var(--vscode-editor-findMatchBackground, rgba(246,185,77,.55))",
+  },
 };
 
 export const baseTheme = EditorView.theme(baseThemeSpec);

@@ -1,6 +1,7 @@
 import { Annotation, EditorState, StateEffect, Transaction } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
 import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
+import { search, searchKeymap } from "@codemirror/search";
 import { markdown, markdownLanguage, markdownKeymap as markdownLanguageKeymap } from "@codemirror/lang-markdown";
 import { languages } from "@codemirror/language-data";
 import { mathExtension } from "./render/mathExtension";
@@ -69,6 +70,11 @@ function createView(text: string): void {
     doc: text,
     extensions: [
       history(),
+      // Find/replace panel (FIR-84): CodeMirror ships no search by default, and
+      // VS Code's native Find doesn't reach a webview custom editor. searchKeymap
+      // binds Mod-f (open), Mod-g / Shift-Mod-g (next/prev), Mod-Alt-f (replace).
+      search({ top: true }),
+      keymap.of(searchKeymap),
       markdownKeymap,
       keymap.of(markdownLanguageKeymap),
       keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
