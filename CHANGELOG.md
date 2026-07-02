@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.0 - 2026-07-01
+## 0.3.0 - 2026-07-02
 
 - **Preview panel.** Open a live, read-only **Preview to the Side** (toolbar
   button, `editor/title` icon, or the `Remarked.md: Open Preview to the Side`
