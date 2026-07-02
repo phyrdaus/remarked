@@ -34,6 +34,8 @@ export function activate(context: vscode.ExtensionContext): RemarkedTestApi | un
       const doc = provider.activeDocument ?? vscode.window.activeTextEditor?.document;
       if (doc) preview.open(doc);
     }),
+    provider.onDidRequestPreviewLine(({ document, line }) => preview.syncToLine(document, line)),
+    preview.onDidRequestEditorLine(({ document, line }) => provider.revealEditorLine(document, line)),
     // FIR-81: inert target for the formatting-shortcut absorber keybindings.
     // Formatting itself is handled inside the webview by CodeMirror's keymap;
     // this command exists only so the editor-scoped keybindings shadow the
