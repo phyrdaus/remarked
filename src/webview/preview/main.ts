@@ -22,8 +22,19 @@ if (root) {
   let anchors: Anchor[] = [];
 
   const collectAnchors = () => {
+    // Measure each anchor's offset within the scroll container's content, not
+    // via offsetTop: offsetTop is relative to the element's offsetParent (a
+    // positioned ancestor, table cell, etc.), which is not necessarily #preview,
+    // so it can yield offsets outside the scroll space. rootContentTop is the
+    // viewport Y of the content origin (top of content at scrollTop 0); the
+    // element's rect top minus it is exactly the scrollTop that brings it to the
+    // top of the viewport — correct regardless of layout.
+    const rootContentTop = root.getBoundingClientRect().top - root.scrollTop;
     anchors = Array.from(root.querySelectorAll<HTMLElement>("[data-line]"))
-      .map((el) => ({ line: Number(el.dataset.line), offsetTop: el.offsetTop }))
+      .map((el) => ({
+        line: Number(el.dataset.line),
+        offsetTop: el.getBoundingClientRect().top - rootContentTop,
+      }))
       .filter((a) => Number.isFinite(a.line))
       .sort((x, y) => x.line - y.line);
   };
