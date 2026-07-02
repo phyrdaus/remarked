@@ -2,6 +2,7 @@ import { Annotation, EditorState, StateEffect, Transaction } from "@codemirror/s
 import { EditorView, keymap } from "@codemirror/view";
 import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
 import { search, searchKeymap } from "@codemirror/search";
+import { searchCount } from "./searchCount";
 import { markdown, markdownLanguage, markdownKeymap as markdownLanguageKeymap } from "@codemirror/lang-markdown";
 import { languages } from "@codemirror/language-data";
 import { mathExtension } from "./render/mathExtension";
@@ -79,6 +80,7 @@ function createView(text: string): void {
       // binds Mod-f (open the find/replace panel), Mod-g / Shift-Mod-g (next/prev);
       // the panel itself carries the replace row.
       search({ top: true }),
+      searchCount, // live "N of M" readout in the find panel (FIR-85 follow-on)
       keymap.of(searchKeymap),
       markdownKeymap,
       keymap.of(markdownLanguageKeymap),
