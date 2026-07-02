@@ -25,6 +25,10 @@
 - **Preview sync.** The Preview panel now follows the editor: moving the caret
   scrolls the preview to the matching content, and clicking in the preview jumps
   the editor there.
+- **Find & replace.** The rich-text view now has an in-editor find/replace panel
+  (`Ctrl`/`⌘`+`F`; open replace with `Ctrl`/`⌘`+`Alt`+`F`), styled to match the
+  formatting toolbar. Previously those shortcuts did nothing in the rich-text
+  view.
 
 ## 0.2.3 - 2026-06-28
 
