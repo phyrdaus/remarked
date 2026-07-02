@@ -29,6 +29,9 @@
   (`Ctrl`/`⌘`+`F`; open replace with `Ctrl`/`⌘`+`Alt`+`F`), styled to match the
   formatting toolbar. Previously those shortcuts did nothing in the rich-text
   view.
+- **Fix:** opening the Preview on a Markdown file outside your workspace folders
+  now shows its relative images. The preview panel is recreated when retargeted
+  to a document whose folder wasn't covered by the original panel.
 
 ## 0.2.3 - 2026-06-28
 
