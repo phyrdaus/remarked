@@ -191,11 +191,26 @@ export const baseThemeSpec: Record<string, Record<string, string>> = {
   ".cm-panel.cm-search .cm-button:hover": {
     background: "var(--vscode-toolbar-hoverBackground, #ffffff14)",
   },
+  // Live match-count readout injected next to the search field (FIR-85 follow-on).
+  ".cm-search-count": {
+    marginLeft: "8px",
+    marginRight: "4px",
+    fontSize: "12px",
+    opacity: "0.75",
+    verticalAlign: "middle",
+    color: "var(--vscode-foreground, #cccccc)",
+  },
   ".cm-searchMatch": {
     background: "var(--vscode-editor-findMatchHighlightBackground, rgba(234,92,0,.33))",
+    borderRadius: "2px",
   },
+  // The current match gets a crisp border (like VS Code's own Find) so it
+  // stands out from the other matches — the two background vars alone are too
+  // close in dark themes to tell apart.
   ".cm-searchMatch-selected": {
     background: "var(--vscode-editor-findMatchBackground, rgba(246,185,77,.55))",
+    outline: "1px solid var(--vscode-editor-findMatchBorder, var(--vscode-focusBorder, #f5a623))",
+    borderRadius: "2px",
   },
 };
 

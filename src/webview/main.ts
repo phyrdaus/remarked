@@ -2,6 +2,7 @@ import { Annotation, EditorState, StateEffect, Transaction } from "@codemirror/s
 import { EditorView, keymap } from "@codemirror/view";
 import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
 import { search, searchKeymap } from "@codemirror/search";
+import { searchCount } from "./searchCount";
 import { markdown, markdownLanguage, markdownKeymap as markdownLanguageKeymap } from "@codemirror/lang-markdown";
 import { languages } from "@codemirror/language-data";
 import { mathExtension } from "./render/mathExtension";
@@ -70,10 +71,16 @@ function createView(text: string): void {
     doc: text,
     extensions: [
       history(),
+      // FIR-85: enable multiple selections so the search panel's "all" button
+      // (selectMatches) and multi-cursor (⌘D / Alt-click) work — CodeMirror
+      // reduces multi-range selections to their main range unless this is set.
+      EditorState.allowMultipleSelections.of(true),
       // Find/replace panel (FIR-84): CodeMirror ships no search by default, and
       // VS Code's native Find doesn't reach a webview custom editor. searchKeymap
-      // binds Mod-f (open), Mod-g / Shift-Mod-g (next/prev), Mod-Alt-f (replace).
+      // binds Mod-f (open the find/replace panel), Mod-g / Shift-Mod-g (next/prev);
+      // the panel itself carries the replace row.
       search({ top: true }),
+      searchCount, // live "N of M" readout in the find panel (FIR-85 follow-on)
       keymap.of(searchKeymap),
       markdownKeymap,
       keymap.of(markdownLanguageKeymap),
