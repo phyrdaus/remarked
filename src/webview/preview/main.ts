@@ -1,7 +1,7 @@
 // Preview panel webview entry (browser bundle). Receives rendered body HTML +
 // mermaid sources from the host and paints them; mermaid renders client-side.
 import { renderMermaid } from "../render/mermaid";
-import { targetOffsetForLine, type Anchor } from "../../preview/scrollSync";
+import { targetOffsetForLine, type Anchor } from "../../shared/scrollSync";
 import type { ToPreview, FromPreview } from "../../shared/messages";
 
 declare function acquireVsCodeApi(): { postMessage(msg: unknown): void };

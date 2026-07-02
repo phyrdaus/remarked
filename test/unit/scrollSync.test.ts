@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { targetOffsetForLine, type Anchor } from "../../src/preview/scrollSync";
+import { targetOffsetForLine, type Anchor } from "../../src/shared/scrollSync";
 
 const anchors: Anchor[] = [
   { line: 0, offsetTop: 0 },

@@ -1,7 +1,42 @@
 import esbuild from "esbuild";
 import { cpSync, mkdirSync, rmSync, statSync } from "node:fs";
+import { builtinModules } from "node:module";
+import path from "node:path";
 
 const watch = process.argv.includes("--watch");
+
+// FIR-78: enforce the host/webview bundle boundary at build time. The webview
+// bundle must never import `vscode`, node builtins, or host-only modules
+// (src/preview, src/editor, src/export) — a violation would only surface at
+// runtime otherwise. Attached to the webview build only; the host build (below)
+// legitimately imports vscode/node.
+const HOST_DIRS = ["src/preview", "src/editor", "src/export"];
+const rel = (p) => path.relative(process.cwd(), p);
+const webviewBoundaryPlugin = {
+  name: "webview-boundary",
+  setup(build) {
+    build.onResolve({ filter: /.*/ }, (args) => {
+      // Police only our own source; dependencies manage their own imports, and
+      // the browser platform already errors on unresolved node builtins.
+      if (!args.importer || args.importer.includes("node_modules")) return null;
+      const spec = args.path;
+      if (spec === "vscode" || spec.startsWith("node:") || builtinModules.includes(spec)) {
+        return {
+          errors: [{ text: `webview bundle must not import "${spec}" (host/node only) — ${rel(args.importer)}` }],
+        };
+      }
+      if (spec.startsWith(".")) {
+        const resolved = rel(path.resolve(args.resolveDir, spec)).split(path.sep).join("/");
+        if (HOST_DIRS.some((d) => resolved === d || resolved.startsWith(d + "/"))) {
+          return {
+            errors: [{ text: `webview bundle must not import host-only module "${resolved}" — ${rel(args.importer)}` }],
+          };
+        }
+      }
+      return null;
+    });
+  },
+};
 
 const builds = [
   {
@@ -22,6 +57,7 @@ const builds = [
     splitting: true,
     chunkNames: "chunks/[name]-[hash]",
     sourcemap: true,
+    plugins: [webviewBoundaryPlugin],
   },
 ];
 
