@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.1 - 2026-07-02
+
+- **Fix:** the find panel's **"all"** button (select all matches) now works, and
+  multi-cursor editing (`⌘D` / Alt-click) is enabled. Multiple selections were
+  never turned on, so those actions silently did nothing.
+- **Docs:** the README now documents the **Preview to the Side** panel and the
+  rich-text **find/replace** (both shipped in 0.3.0), notes the new export and
+  preview toolbar buttons, and refreshes the screenshots for the current toolbar.
+
 ## 0.3.0 - 2026-07-02
 
 - **Preview panel.** Open a live, read-only **Preview to the Side** (toolbar

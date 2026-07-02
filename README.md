@@ -15,10 +15,18 @@ edit it.
   never whole-paragraph flips.
 - **Instant source toggle.** `⌥⌘E` (mac) / `Ctrl+Shift+Alt+E` reopens the
   same buffer in the plain text editor and back.
+- **Preview to the Side.** Open a live, read-only rendered preview beside the
+  editor (toolbar button or the *Open Preview to the Side* command) that follows
+  your caret as you move and type. Because it's rendered, selecting and copying
+  from it yields clean formatted rich text.
+- **Find & replace** in the rich-text view: `⌘F` / `Ctrl+F` opens a search
+  panel with match navigation (`⌘G` / `Ctrl+G` for next) and an inline replace
+  row (Replace / Replace all).
 - **Formatting toolbar** at the top of the editor with bold, italic,
   strikethrough, inline code, headings (H1-H3), lists, blockquote, code block,
-  horizontal rule, link, image, and table actions. Buttons reflect the
-  formatting at the cursor. Hide it with `remarked.toolbar.enabled: false`.
+  horizontal rule, link, image, and table actions, plus buttons to export
+  (HTML/PDF) and open the preview. Buttons reflect the formatting at the cursor.
+  Hide it with `remarked.toolbar.enabled: false`.
 - **GFM tables** you edit like a spreadsheet: click a cell and type, Tab/Enter
   to move, hover toolbar for rows, columns and alignment, `⌘/` to edit raw
   pipes.
@@ -49,6 +57,10 @@ edit it.
 ![The toolbar reflecting the formatting at the cursor](images/04-toolbar-active.png)
 
 *Toolbar buttons light up to show the formatting at your caret.*
+
+![The editor beside a live rendered Preview panel](images/05-preview-panel.png)
+
+*Open a live Preview to the Side; it follows your caret and gives you clean rich text to copy.*
 
 ## Try it
 
