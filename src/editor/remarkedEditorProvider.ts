@@ -20,6 +20,12 @@ export class RemarkedEditorProvider implements vscode.CustomTextEditorProvider {
   private readonly activeChanged = new vscode.EventEmitter<vscode.TextDocument | undefined>();
   /** Fires when the focused Remarked editor (or its presence) changes. */
   public readonly onDidChangeActiveDocument = this.activeChanged.event;
+  private readonly previewLine = new vscode.EventEmitter<{
+    document: vscode.TextDocument;
+    line: number;
+  }>();
+  /** Fires when an editor reports its caret's source line (for preview sync). */
+  public readonly onDidRequestPreviewLine = this.previewLine.event;
   private lastActiveDocument: vscode.TextDocument | undefined;
   private lastWarningAt = 0;
   // Focus/typewriter are deliberately provider-global (one toggle affects every
@@ -61,6 +67,15 @@ export class RemarkedEditorProvider implements vscode.CustomTextEditorProvider {
   public panelForDocument(document: vscode.TextDocument): vscode.WebviewPanel | undefined {
     for (const [panel, session] of this.sessions) if (session.document === document) return panel;
     return undefined;
+  }
+
+  /** Move a document's editor caret to the start of `line` (0-based) and reveal it. */
+  public revealEditorLine(document: vscode.TextDocument, line: number): void {
+    const panel = this.panelForDocument(document);
+    if (!panel) return;
+    const clamped = Math.max(0, Math.min(line, document.lineCount - 1));
+    const pos = document.offsetAt(new vscode.Position(clamped, 0));
+    void panel.webview.postMessage({ type: "revealPos", pos } satisfies ToWebview);
   }
 
   /**
@@ -328,6 +343,9 @@ export class RemarkedEditorProvider implements vscode.CustomTextEditorProvider {
           this.updateFocusContext();
           break;
         }
+        case "caretLine":
+          this.previewLine.fire({ document, line: msg.line });
+          break;
       }
     });
     webviewPanel.onDidDispose(() => {
