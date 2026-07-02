@@ -10,7 +10,10 @@ export class RemarkedEditorProvider implements vscode.CustomTextEditorProvider {
   public static readonly viewType = "remarked.editor";
 
   /** One entry per live editor; insertion order backs postToLatestWebview. */
-  private readonly sessions = new Map<vscode.WebviewPanel, { document: vscode.TextDocument; renderAnyway: boolean }>();
+  private readonly sessions = new Map<
+    vscode.WebviewPanel,
+    { document: vscode.TextDocument; renderAnyway: boolean; focused: boolean }
+  >();
   private readonly testMessages = new vscode.EventEmitter<ToHost>();
   /** Test-only: fires for every `test:*` message from any webview. */
   public readonly onTestMessage = this.testMessages.event;
@@ -97,6 +100,25 @@ export class RemarkedEditorProvider implements vscode.CustomTextEditorProvider {
     this.activeChanged.fire(current);
   }
 
+  /**
+   * FIR-81: drive the `remarked.editorFocused` context key that scopes the
+   * formatting-shortcut absorber keybindings. True only while the *active*
+   * Remarked panel's webview reports keyboard focus — so the absorbers apply
+   * when you're editing, but the global shortcuts (e.g. Ctrl/Cmd+B = toggle
+   * Side Bar) still work when focus is in the Explorer or another pane, even
+   * though the Remarked tab remains the active editor.
+   */
+  private updateFocusContext(): void {
+    let focused = false;
+    for (const [panel, session] of this.sessions) {
+      if (panel.active && session.focused) {
+        focused = true;
+        break;
+      }
+    }
+    void vscode.commands.executeCommand("setContext", "remarked.editorFocused", focused);
+  }
+
   public toggleFocusMode(): void {
     this.focusOn = !this.focusOn;
     this.broadcast({ type: "setMode", focus: this.focusOn });
@@ -153,10 +175,13 @@ export class RemarkedEditorProvider implements vscode.CustomTextEditorProvider {
       ],
       nonce: makeNonce(),
     });
-    this.sessions.set(webviewPanel, { document, renderAnyway: false });
-    const viewStateSubscription = webviewPanel.onDidChangeViewState(() =>
-      this.fireActiveChanged()
-    );
+    this.sessions.set(webviewPanel, { document, renderAnyway: false, focused: false });
+    const viewStateSubscription = webviewPanel.onDidChangeViewState(() => {
+      this.fireActiveChanged();
+      // A tab switch can leave the absorber context stuck true; recompute it
+      // against the now-active panel (FIR-81).
+      this.updateFocusContext();
+    });
     let disposed = false;
 
     // Highest webview edit version applied to (or acknowledged for) this editor.
@@ -297,6 +322,12 @@ export class RemarkedEditorProvider implements vscode.CustomTextEditorProvider {
         case "saveImage":
           void this.handleSaveImage(document, webviewPanel, msg);
           break;
+        case "focusChanged": {
+          const session = this.sessions.get(webviewPanel);
+          if (session) session.focused = msg.focused;
+          this.updateFocusContext();
+          break;
+        }
       }
     });
     webviewPanel.onDidDispose(() => {
@@ -306,6 +337,8 @@ export class RemarkedEditorProvider implements vscode.CustomTextEditorProvider {
       messageSubscription.dispose();
       viewStateSubscription.dispose();
       this.fireActiveChanged();
+      // Drop the absorber context if the focused editor just closed (FIR-81).
+      this.updateFocusContext();
     });
     // A freshly created panel is usually already active; don't rely on the
     // onDidChangeViewState event timing for the first status-bar update.

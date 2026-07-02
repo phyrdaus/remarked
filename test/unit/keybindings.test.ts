@@ -10,6 +10,12 @@ import { readFileSync } from "node:fs";
  * editor-scoped keybindings bound to an inert `remarked.noop` command so the
  * global action never runs while the Remarked editor is focused.
  *
+ * The scope is `activeCustomEditorId == 'remarked.editor' && remarked.editorFocused`.
+ * The `activeCustomEditorId` half alone stays true whenever the Remarked tab is
+ * the active editor — even if focus is in the Explorer — which would wrongly
+ * absorb the global shortcut there. The `remarked.editorFocused` half (a context
+ * key the host drives from the webview's focus/blur) narrows it to real focus.
+ *
  * VS Code keybinding *resolution* is pure runtime and not unit-testable — this
  * only locks the declaration so the bindings can't be silently dropped or their
  * scope loosened. Behaviour is verified by the manual EDH acceptance pass.
@@ -34,17 +40,20 @@ const SHORTCUTS = [
 ];
 
 const EDITOR_SCOPE = "activeCustomEditorId == 'remarked.editor'";
+const FOCUS_SCOPE = "remarked.editorFocused";
 
 describe("formatting-shortcut absorber keybindings (FIR-81)", () => {
   for (const s of SHORTCUTS) {
-    it(`shadows the global ${s.name} shortcut, scoped to the Remarked editor`, () => {
+    it(`shadows the global ${s.name} shortcut, scoped to the focused Remarked editor`, () => {
       const binding = pkg.contributes.keybindings.find(
         (b) => b.key === s.ctrl && b.mac === s.mac
       );
       expect(binding, `no keybinding for ${s.ctrl}/${s.mac}`).toBeDefined();
       expect(binding!.command).toBe("remarked.noop");
-      // Must be tight enough that the global default still works elsewhere.
+      // Must be tight enough that the global default still works elsewhere:
+      // the active-editor scope AND real webview focus.
       expect(binding!.when).toContain(EDITOR_SCOPE);
+      expect(binding!.when).toContain(FOCUS_SCOPE);
     });
   }
 
