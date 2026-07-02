@@ -22,6 +22,10 @@ describe("isWithinRoots (FIR-80 preview retarget)", () => {
     expect(isWithinRoots("/home/u/workspace", ["/home/u/ws"])).toBe(false);
   });
 
+  it("treats a directory whose name starts with '..' as nested, not an escape", () => {
+    expect(isWithinRoots("/home/u/ws/..cache/doc", ["/home/u/ws"])).toBe(true);
+  });
+
   it("is false when there are no roots", () => {
     expect(isWithinRoots("/anything", [])).toBe(false);
   });
