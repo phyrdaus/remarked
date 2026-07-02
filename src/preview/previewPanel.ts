@@ -13,8 +13,20 @@ export class PreviewPanelManager {
   private changeSub: vscode.Disposable | undefined;
   private closeSub: vscode.Disposable | undefined;
   private messageSub: vscode.Disposable | undefined;
+  private readonly editorLine = new vscode.EventEmitter<{
+    document: vscode.TextDocument;
+    line: number;
+  }>();
+  /** Fires when the user clicks a mapped element in the preview. */
+  public readonly onDidRequestEditorLine = this.editorLine.event;
 
   constructor(private readonly extensionUri: vscode.Uri) {}
+
+  /** Scroll the preview to a 0-based source line, if it is previewing `document`. */
+  public syncToLine(document: vscode.TextDocument, line: number): void {
+    if (!this.panel || this.document !== document) return;
+    void this.panel.webview.postMessage({ type: "scrollToLine", line });
+  }
 
   public open(document: vscode.TextDocument): void {
     this.document = document;
@@ -47,6 +59,9 @@ export class PreviewPanelManager {
     const webview = this.panel.webview;
     this.messageSub = webview.onDidReceiveMessage((msg) => {
       if (msg?.type === "ready") this.render();
+      else if (msg?.type === "revealLine" && this.document && typeof msg.line === "number") {
+        this.editorLine.fire({ document: this.document, line: msg.line });
+      }
     });
     const dist = vscode.Uri.joinPath(this.extensionUri, "dist", "webview");
     webview.html = renderPreviewHtml({
@@ -72,6 +87,7 @@ export class PreviewPanelManager {
       this.closeSub = undefined;
       this.messageSub?.dispose();
       this.messageSub = undefined;
+      this.editorLine.dispose();
       this.panel = undefined;
       this.document = undefined;
     });
@@ -107,6 +123,7 @@ export class PreviewPanelManager {
     this.changeSub?.dispose();
     this.closeSub?.dispose();
     this.messageSub?.dispose();
+    this.editorLine.dispose();
     this.panel?.dispose();
   }
 }
