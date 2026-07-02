@@ -22,6 +22,9 @@
   clicked. Heading spacing used CSS margins, which CodeMirror's line measurement
   ignores, so clicks below headings landed a few rows too low — drifting further
   the more headings sat above the click.
+- **Preview sync.** The Preview panel now follows the editor: moving the caret
+  scrolls the preview to the matching content, and clicking in the preview jumps
+  the editor there.
 
 ## 0.2.3 - 2026-06-28
 
