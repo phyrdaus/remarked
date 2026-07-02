@@ -17,7 +17,7 @@ export function renderPreviewBody(
   source: string,
   toWebviewUri: (src: string) => string | null
 ): PreviewBody {
-  const rendered = renderMarkdown(source);
+  const rendered = renderMarkdown(source, { sourceMap: true });
   const replacements = new Map<string, string>();
   for (const src of rendered.imageSrcs) {
     const uri = toWebviewUri(src);
