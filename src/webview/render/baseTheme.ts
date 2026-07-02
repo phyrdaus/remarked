@@ -5,7 +5,13 @@ import { EditorView } from "@codemirror/view";
  * variables already inherited by the webview body; the full adaptive palette
  * derivation is Plan 4.
  */
-export const baseTheme = EditorView.theme({
+/**
+ * Raw style spec (exported for the FIR-83 regression test). Line-decoration
+ * classes must never carry vertical `margin`: CodeMirror's height map measures
+ * the line box, which excludes margins, so a margin desyncs click mapping from
+ * the rendered layout. Use `padding` for line spacing instead.
+ */
+export const baseThemeSpec: Record<string, Record<string, string>> = {
   "&": {
     fontSize: "15px",
     fontFamily:
@@ -21,8 +27,14 @@ export const baseTheme = EditorView.theme({
   ".cm-line": { padding: "0" },
   "&.cm-focused": { outline: "none" },
   ".cm-rm-heading": { fontWeight: "700", lineHeight: "1.3" },
-  ".cm-rm-h1": { fontSize: "1.9em", margin: "0.6em 0 0.3em" },
-  ".cm-rm-h2": { fontSize: "1.5em", margin: "0.6em 0 0.25em" },
+  // Vertical spacing MUST be padding, not margin: these are line decorations
+  // (class on .cm-line), and CodeMirror's height map measures the line box —
+  // which excludes (and collapses) margins. Margins here desync the height map
+  // from the rendered layout, so clicks below a heading resolve too far down,
+  // accumulating with each heading above (FIR-83). Headings have no background,
+  // so padding looks identical.
+  ".cm-rm-h1": { fontSize: "1.9em", padding: "0.6em 0 0.3em" },
+  ".cm-rm-h2": { fontSize: "1.5em", padding: "0.6em 0 0.25em" },
   ".cm-rm-h3": { fontSize: "1.25em" },
   ".cm-rm-h4": { fontSize: "1.1em" },
   ".cm-rm-h5": { fontSize: "1em" },
@@ -136,4 +148,6 @@ export const baseTheme = EditorView.theme({
     border: "1px solid var(--vscode-editorHoverWidget-border, #454545)",
   },
   ".cm-rm-table-toolbar .rm-tip.show": { display: "block" },
-});
+};
+
+export const baseTheme = EditorView.theme(baseThemeSpec);
