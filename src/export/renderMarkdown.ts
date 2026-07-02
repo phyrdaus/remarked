@@ -117,7 +117,12 @@ function renderKatex(tex: string, displayMode: boolean): string {
   return katex.renderToString(tex, { displayMode, throwOnError: false });
 }
 
-export function renderMarkdown(source: string): RenderedMarkdown {
+export interface RenderMarkdownOptions {
+  /** Emit data-line="<0-based source line>" on block anchors (preview only). */
+  sourceMap?: boolean;
+}
+
+export function renderMarkdown(source: string, opts: RenderMarkdownOptions = {}): RenderedMarkdown {
   const md = new MarkdownIt({ html: false, linkify: false });
   md.inline.ruler.after("escape", "math_inline", mathInline);
   md.block.ruler.before("fence", "math_block", mathBlock, {
@@ -125,9 +130,22 @@ export function renderMarkdown(source: string): RenderedMarkdown {
   });
   md.core.ruler.after("inline", "task_lists", taskLists);
 
+  if (opts.sourceMap) {
+    md.core.ruler.push("rm_source_line", (state) => {
+      for (const token of state.tokens) {
+        if (token.map && token.nesting === 1) {
+          token.attrSet("data-line", String(token.map[0]));
+        }
+      }
+    });
+  }
+
   md.renderer.rules.math_inline = (tokens, idx) => renderKatex(tokens[idx].content, false);
-  md.renderer.rules.math_block = (tokens, idx) =>
-    `<div class="rm-math-block">${renderKatex(tokens[idx].content, true)}</div>\n`;
+  md.renderer.rules.math_block = (tokens, idx) => {
+    const map = tokens[idx].map;
+    const attr = opts.sourceMap && map ? ` data-line="${map[0]}"` : "";
+    return `<div class="rm-math-block"${attr}>${renderKatex(tokens[idx].content, true)}</div>\n`;
+  };
 
   const mermaidSources: string[] = [];
   const defaultFence = md.renderer.rules.fence!.bind(md.renderer.rules);

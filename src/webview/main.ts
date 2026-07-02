@@ -41,9 +41,26 @@ window.addEventListener("blur", () => postFocus(false));
 /** Marks transactions that originate from a host sync (must not echo back). */
 export const remoteSync = Annotation.define<boolean>();
 
+/** Marks selection changes from a preview-driven reveal (must not echo back). */
+export const previewReveal = Annotation.define<boolean>();
+
 let view: EditorView | undefined;
 /** Monotonic counter for edits we send; syncs older than this are stale. */
 let localVersion = 0;
+
+let lastReportedLine = -1;
+let caretTimer: ReturnType<typeof setTimeout> | undefined;
+function reportCaretLine(line: number, fromPreviewReveal: boolean): void {
+  if (fromPreviewReveal) {
+    lastReportedLine = line;
+    if (caretTimer) { clearTimeout(caretTimer); caretTimer = undefined; }
+    return; // swallow the echo AND cancel any pending stale report
+  }
+  if (line === lastReportedLine) return;
+  lastReportedLine = line;
+  if (caretTimer) clearTimeout(caretTimer);
+  caretTimer = setTimeout(() => post({ type: "caretLine", line }), 120);
+}
 
 function createView(text: string): void {
   const parent = document.getElementById("editor")!;
@@ -101,6 +118,13 @@ function createView(text: string): void {
           changes.push({ from: fromA, to: toA, insert: inserted.toString() });
         });
         post({ type: "edit", changes, version: ++localVersion });
+      }),
+      EditorView.updateListener.of((update) => {
+        if (!update.selectionSet && !update.docChanged) return;
+        const fromReveal = update.transactions.some((tr) => tr.annotation(previewReveal));
+        const head = update.state.selection.main.head;
+        const line = update.state.doc.lineAt(head).number - 1; // 0-based
+        reportCaretLine(line, fromReveal);
       }),
     ],
   });
@@ -180,6 +204,7 @@ window.addEventListener("message", (event) => {
       view.dispatch({
         selection: { anchor: pos },
         effects: EditorView.scrollIntoView(pos, { y: "center" }),
+        annotations: previewReveal.of(true),
       });
       view.focus();
       break;
