@@ -16,8 +16,8 @@ them, so they render as soon as the files exist.
 > and **Open Preview to the Side** buttons at the far right. The toolbar is the
 > fixed bar at the top of the editor, so it appears in **all four** shots — so
 > re-capture **every** screenshot (**01–04**) with **v0.3.0+** installed so the
-> current toolbar shows consistently. New shot **05** is required for the
-> README's Preview section; **06** (find/replace) is optional.
+> current toolbar shows consistently. New shots **05** (Preview panel) and
+> **06** (find/replace) are required for the README's new sections.
 
 Tips for clean shots:
 - Use a comfortable window width (~900-1100px of editor) so text isn't cramped.
@@ -35,7 +35,7 @@ Tips for clean shots:
 | `images/03-math-mermaid.png` | A view showing **KaTeX math** and a **Mermaid diagram** rendered inline (the demo has both; scroll to a spot where you can frame them together, or crop one if needed). |
 | `images/04-toolbar-active.png` | A close-up of the **full toolbar with one or more buttons lit** (active-state); e.g. put the caret inside bold text and inside a heading so Bold / H-level buttons highlight. Make sure the **View Source** button (far right) is in frame. |
 | `images/05-preview-panel.png` | **Required for v0.3.1.** The editor (left) beside the **Preview to the Side** panel (right) rendering the same `demo.md`. Click *Open Preview to the Side* (toolbar or command), then put the caret partway down the doc so the preview is scrolled to the matching content (shows caret-follow sync). Frame both panes. |
-| `images/06-find-replace.png` (optional) | The **find/replace panel** open over the editor (`⌘F` — the panel already shows the Replace row), with a term entered so matches highlight. Only add if you also add a matching image to the README. |
+| `images/06-find-replace.png` | The **find/replace panel** open over the editor (`⌘F`). Search a word that appears several times in `demo.md` so **multiple matches highlight**, then step to a match (Enter / *next*) so the **current match shows its outline** against the plain-fill others. The panel's Replace row is visible below the find row. Dark theme shows the outlined-current-match contrast best. |
 
 Optional extras you could add later (and reference in the README): image
 paste/drag-drop, the source toggle (`⌥⌘E`), or an HTML/PDF export result.

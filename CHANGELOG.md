@@ -5,6 +5,9 @@
 - **Fix:** the find panel's **"all"** button (select all matches) now works, and
   multi-cursor editing (`⌘D` / Alt-click) is enabled. Multiple selections were
   never turned on, so those actions silently did nothing.
+- **Search polish:** the find panel now shows a **live match count** ("3 of 12"),
+  and the current match is **outlined** so it stands out from the other
+  highlights.
 - **Docs:** the README now documents the **Preview to the Side** panel and the
   rich-text **find/replace** (both shipped in 0.3.0), notes the new export and
   preview toolbar buttons, and refreshes the screenshots for the current toolbar.
