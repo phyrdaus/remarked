@@ -87,7 +87,6 @@ export class PreviewPanelManager {
       this.closeSub = undefined;
       this.messageSub?.dispose();
       this.messageSub = undefined;
-      this.editorLine.dispose();
       this.panel = undefined;
       this.document = undefined;
     });
