@@ -33,7 +33,14 @@ export function activate(context: vscode.ExtensionContext): RemarkedTestApi | un
     vscode.commands.registerCommand("remarked.openPreview", () => {
       const doc = provider.activeDocument ?? vscode.window.activeTextEditor?.document;
       if (doc) preview.open(doc);
-    })
+    }),
+    // FIR-81: inert target for the formatting-shortcut absorber keybindings.
+    // Formatting itself is handled inside the webview by CodeMirror's keymap;
+    // this command exists only so the editor-scoped keybindings shadow the
+    // workbench defaults (e.g. Ctrl/Cmd+B = toggle sidebar) without them also
+    // firing. A registered no-op keeps resolution silent (no "command not
+    // found") — it is intentionally not exposed in contributes.commands.
+    vscode.commands.registerCommand("remarked.noop", () => {})
   );
   if (context.extensionMode === vscode.ExtensionMode.Test) {
     return {

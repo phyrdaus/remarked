@@ -153,6 +153,30 @@
         "key": "ctrl+shift+o",
         "mac": "cmd+shift+o",
         "when": "activeCustomEditorId == 'remarked.editor'"
+      },
+      {
+        "command": "remarked.noop",
+        "key": "ctrl+b",
+        "mac": "cmd+b",
+        "when": "activeCustomEditorId == 'remarked.editor'"
+      },
+      {
+        "command": "remarked.noop",
+        "key": "ctrl+i",
+        "mac": "cmd+i",
+        "when": "activeCustomEditorId == 'remarked.editor'"
+      },
+      {
+        "command": "remarked.noop",
+        "key": "ctrl+`",
+        "mac": "cmd+`",
+        "when": "activeCustomEditorId == 'remarked.editor'"
+      },
+      {
+        "command": "remarked.noop",
+        "key": "ctrl+k",
+        "mac": "cmd+k",
+        "when": "activeCustomEditorId == 'remarked.editor'"
       }
     ],
     "menus": {
