@@ -18,6 +18,10 @@
   `Ctrl`/`⌘`+`B` (and `I`, `` ` ``, `K`) inside the editor now only applies the
   formatting — previously it also toggled the Side Bar and similar global
   shortcuts that share those keys.
+- **Fix:** clicking in the rich-text view now places the cursor on the line you
+  clicked. Heading spacing used CSS margins, which CodeMirror's line measurement
+  ignores, so clicks below headings landed a few rows too low — drifting further
+  the more headings sat above the click.
 
 ## 0.2.3 - 2026-06-28
 
