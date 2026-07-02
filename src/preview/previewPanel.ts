@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import type { ToPreview, FromPreview } from "../shared/messages";
 import { renderPreviewBody } from "./renderPreviewBody";
 import { renderPreviewHtml } from "./previewHtml";
 import { createDebouncer } from "./debounce";
@@ -25,7 +26,7 @@ export class PreviewPanelManager {
   /** Scroll the preview to a 0-based source line, if it is previewing `document`. */
   public syncToLine(document: vscode.TextDocument, line: number): void {
     if (!this.panel || this.document !== document) return;
-    void this.panel.webview.postMessage({ type: "scrollToLine", line });
+    void this.panel.webview.postMessage({ type: "scrollToLine", line } satisfies ToPreview);
   }
 
   public open(document: vscode.TextDocument): void {
@@ -57,7 +58,7 @@ export class PreviewPanelManager {
       }
     );
     const webview = this.panel.webview;
-    this.messageSub = webview.onDidReceiveMessage((msg) => {
+    this.messageSub = webview.onDidReceiveMessage((msg: FromPreview) => {
       if (msg?.type === "ready") this.render();
       else if (msg?.type === "revealLine" && this.document && typeof msg.line === "number") {
         this.editorLine.fire({ document: this.document, line: msg.line });
@@ -114,7 +115,11 @@ export class PreviewPanelManager {
         return null;
       }
     });
-    void webview.postMessage({ type: "render", html: body.html, mermaidSources: body.mermaidSources });
+    void webview.postMessage({
+      type: "render",
+      html: body.html,
+      mermaidSources: body.mermaidSources,
+    } satisfies ToPreview);
   }
 
   public dispose(): void {

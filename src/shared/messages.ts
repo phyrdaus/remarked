@@ -41,3 +41,13 @@ export type ToHost =
   // just an active tab, which `activeCustomEditorId` alone would match).
   | { type: "focusChanged"; focused: boolean }
   | { type: "caretLine"; line: number };
+
+/** Host -> preview panel webview (FIR-79: shared so drift is a type error). */
+export type ToPreview =
+  | { type: "render"; html: string; mermaidSources: string[] }
+  | { type: "scrollToLine"; line: number };
+
+/** Preview panel webview -> host (FIR-79). */
+export type FromPreview =
+  | { type: "ready" }
+  | { type: "revealLine"; line: number };
