@@ -1,7 +1,8 @@
 // Preview panel webview entry (browser bundle). Receives rendered body HTML +
 // mermaid sources from the host and paints them; mermaid renders client-side.
 import { renderMermaid } from "../render/mermaid";
-import { targetOffsetForLine, type Anchor } from "../../preview/scrollSync";
+import { targetOffsetForLine, type Anchor } from "../../shared/scrollSync";
+import type { ToPreview, FromPreview } from "../../shared/messages";
 
 declare function acquireVsCodeApi(): { postMessage(msg: unknown): void };
 
@@ -19,6 +20,7 @@ export function applyRender(container: HTMLElement, html: string, mermaidSources
 const root = document.getElementById("preview");
 if (root) {
   const vscode = acquireVsCodeApi();
+  const post = (msg: FromPreview) => vscode.postMessage(msg);
   let anchors: Anchor[] = [];
 
   const collectAnchors = () => {
@@ -51,9 +53,7 @@ if (root) {
   };
 
   window.addEventListener("message", (event) => {
-    const msg = event.data as
-      | { type: "render"; html: string; mermaidSources: string[] }
-      | { type: "scrollToLine"; line: number };
+    const msg = event.data as ToPreview;
     if (msg?.type === "render") {
       applyRender(root, msg.html, msg.mermaidSources);
       collectAnchors();
@@ -66,8 +66,8 @@ if (root) {
     const el = (e.target as HTMLElement)?.closest?.("[data-line]") as HTMLElement | null;
     if (!el) return;
     const line = Number(el.dataset.line);
-    if (Number.isFinite(line)) vscode.postMessage({ type: "revealLine", line });
+    if (Number.isFinite(line)) post({ type: "revealLine", line });
   });
 
-  vscode.postMessage({ type: "ready" });
+  post({ type: "ready" });
 }
