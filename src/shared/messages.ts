@@ -35,4 +35,8 @@ export type ToHost =
   | { type: "showError"; message: string }
   | { type: "export:mermaidSvgs"; requestId: number; svgs: (string | null)[] }
   | { type: "test:text"; text: string }
-  | { type: "openPreview" };
+  | { type: "openPreview" }
+  // FIR-81: reports whether the editor webview has keyboard focus, so the host
+  // can scope the formatting-shortcut absorber keybindings to real focus (not
+  // just an active tab, which `activeCustomEditorId` alone would match).
+  | { type: "focusChanged"; focused: boolean };

@@ -14,6 +14,10 @@
 - **Fix:** toolbar and table tooltips now show platform-correct shortcut keys —
   `Ctrl`/`Alt` on Windows and Linux, `⌘`/`⌥` on macOS — instead of always
   showing the macOS symbols.
+- **Fix:** formatting shortcuts no longer trigger workbench actions. Pressing
+  `Ctrl`/`⌘`+`B` (and `I`, `` ` ``, `K`) inside the editor now only applies the
+  formatting — previously it also toggled the Side Bar and similar global
+  shortcuts that share those keys.
 
 ## 0.2.3 - 2026-06-28
 

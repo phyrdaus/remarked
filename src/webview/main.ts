@@ -25,6 +25,19 @@ declare function acquireVsCodeApi(): { postMessage(msg: unknown): void };
 const vscode = acquireVsCodeApi();
 const post = (msg: ToHost) => vscode.postMessage(msg);
 
+// FIR-81: publish whether this webview has keyboard focus so the host can scope
+// the formatting-shortcut absorber keybindings precisely. Window focus/blur
+// tracks the iframe as a whole (clicking within it stays focused; clicking the
+// Explorer or another pane blurs it). Deduped so we only post real transitions.
+let lastFocused: boolean | undefined;
+const postFocus = (focused: boolean) => {
+  if (focused === lastFocused) return;
+  lastFocused = focused;
+  post({ type: "focusChanged", focused });
+};
+window.addEventListener("focus", () => postFocus(true));
+window.addEventListener("blur", () => postFocus(false));
+
 /** Marks transactions that originate from a host sync (must not echo back). */
 export const remoteSync = Annotation.define<boolean>();
 
@@ -93,6 +106,9 @@ function createView(text: string): void {
   });
   view = new EditorView({ state, parent });
   view.focus();
+  // Report the post-creation focus state directly: focusing an element inside an
+  // already-focused window won't fire a window "focus" event on its own.
+  postFocus(document.hasFocus());
   if (getRenderSettings().toolbar) {
     const bar = createToolbar(view, post);
     parent.before(bar.dom); // toolbar sits above #editor in the body flex column
