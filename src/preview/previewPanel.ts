@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import type { ToPreview, FromPreview } from "../shared/messages";
+import { isWithinRoots } from "./pathScope";
 import { renderPreviewBody } from "./renderPreviewBody";
 import { renderPreviewHtml } from "./previewHtml";
 import { createDebouncer } from "./debounce";
@@ -10,6 +11,8 @@ import { resolveCustomCssFsPath } from "../editor/customCss";
 export class PreviewPanelManager {
   private panel: vscode.WebviewPanel | undefined;
   private document: vscode.TextDocument | undefined;
+  /** localResourceRoots the current panel was created with (immutable per-panel). */
+  private roots: vscode.Uri[] = [];
   private readonly debouncer = createDebouncer(250);
   private changeSub: vscode.Disposable | undefined;
   private closeSub: vscode.Disposable | undefined;
@@ -30,6 +33,21 @@ export class PreviewPanelManager {
   }
 
   public open(document: vscode.TextDocument): void {
+    const docDir = vscode.Uri.joinPath(document.uri, "..");
+    // Retarget to a document outside the current resource roots: recreate the
+    // panel. VS Code makes localResourceRoots immutable after creation, so a
+    // doc in a new directory (outside all workspace folders) would otherwise
+    // have its relative images blocked (FIR-80). Same-workspace retargets stay
+    // in place — their directory is already covered by a workspace-folder root.
+    if (
+      this.panel &&
+      this.document !== document &&
+      !isWithinRoots(docDir.fsPath, this.roots.map((r) => r.fsPath))
+    ) {
+      const old = this.panel;
+      this.teardown();
+      old.dispose();
+    }
     this.document = document;
     if (this.panel) {
       this.panel.title = this.titleFor(document);
@@ -37,27 +55,25 @@ export class PreviewPanelManager {
       this.render();
       return;
     }
-    const docDir = vscode.Uri.joinPath(document.uri, "..");
     const customCssFsPath = resolveCustomCssFsPath(
       vscode.workspace.getConfiguration("remarked").get<string>("customCss"),
       vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
     );
     const customCssUri = customCssFsPath ? vscode.Uri.file(customCssFsPath) : undefined;
+    this.roots = [
+      this.extensionUri,
+      docDir,
+      ...(vscode.workspace.workspaceFolders ?? []).map((f) => f.uri),
+      ...(customCssUri ? [vscode.Uri.joinPath(customCssUri, "..")] : []),
+    ];
     this.panel = vscode.window.createWebviewPanel(
       "remarked.preview",
       this.titleFor(document),
       { viewColumn: vscode.ViewColumn.Beside, preserveFocus: true },
-      {
-        enableScripts: true,
-        localResourceRoots: [
-          this.extensionUri,
-          docDir,
-          ...(vscode.workspace.workspaceFolders ?? []).map((f) => f.uri),
-          ...(customCssUri ? [vscode.Uri.joinPath(customCssUri, "..")] : []),
-        ],
-      }
+      { enableScripts: true, localResourceRoots: this.roots }
     );
-    const webview = this.panel.webview;
+    const panel = this.panel;
+    const webview = panel.webview;
     this.messageSub = webview.onDidReceiveMessage((msg: FromPreview) => {
       if (msg?.type === "ready") this.render();
       else if (msg?.type === "revealLine" && this.document && typeof msg.line === "number") {
@@ -80,21 +96,28 @@ export class PreviewPanelManager {
         this.debouncer.schedule(() => this.render());
       }
     });
-    this.panel.onDidDispose(() => {
-      this.debouncer.cancel();
-      this.changeSub?.dispose();
-      this.changeSub = undefined;
-      this.closeSub?.dispose();
-      this.closeSub = undefined;
-      this.messageSub?.dispose();
-      this.messageSub = undefined;
-      this.panel = undefined;
-      this.document = undefined;
+    panel.onDidDispose(() => {
+      // A newer panel may have already replaced this one (retarget recreate);
+      // only clear shared state if we are still the active panel.
+      if (this.panel === panel) this.teardown();
     });
     // Close the panel if its document is closed.
     this.closeSub = vscode.workspace.onDidCloseTextDocument((doc) => {
       if (doc === this.document) this.panel?.dispose();
     });
+  }
+
+  /** Dispose the per-panel subscriptions and clear panel/document state. */
+  private teardown(): void {
+    this.debouncer.cancel();
+    this.changeSub?.dispose();
+    this.changeSub = undefined;
+    this.closeSub?.dispose();
+    this.closeSub = undefined;
+    this.messageSub?.dispose();
+    this.messageSub = undefined;
+    this.panel = undefined;
+    this.document = undefined;
   }
 
   private titleFor(document: vscode.TextDocument): string {
@@ -123,11 +146,9 @@ export class PreviewPanelManager {
   }
 
   public dispose(): void {
-    this.debouncer.cancel();
-    this.changeSub?.dispose();
-    this.closeSub?.dispose();
-    this.messageSub?.dispose();
+    const panel = this.panel;
+    this.teardown();
+    panel?.dispose();
     this.editorLine.dispose();
-    this.panel?.dispose();
   }
 }
