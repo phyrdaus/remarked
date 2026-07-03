@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.2 - 2026-07-03
+
+- **Smaller download.** Production bundles are now minified, cutting the packaged
+  extension by ~21% (2.66 → 2.10 MB) with no change in behavior. Faster to
+  install and update; nothing else changes.
+
 ## 0.3.1 - 2026-07-02
 
 - **Fix:** the find panel's **"all"** button (select all matches) now works, and
