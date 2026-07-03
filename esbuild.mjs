@@ -38,6 +38,13 @@ const webviewBoundaryPlugin = {
   },
 };
 
+// Minify only for production packaging, never in --watch: dev rebuilds stay
+// fast and the output readable, while the shipped bundle drops ~45% of its
+// bytes (VSIX ~2.66 -> ~2.10 MB). Behavior is unchanged — esbuild renames only
+// locals and strips whitespace/dead code; no code here reads runtime identifier
+// names (all `.name` reads are Lezer node-type strings, not JS identifiers).
+const minify = !watch;
+
 const builds = [
   {
     entryPoints: ["src/extension.ts"],
@@ -47,6 +54,7 @@ const builds = [
     format: "cjs",
     external: ["vscode"],
     sourcemap: true,
+    minify,
   },
   {
     entryPoints: { main: "src/webview/main.ts", preview: "src/webview/preview/main.ts" },
@@ -57,6 +65,7 @@ const builds = [
     splitting: true,
     chunkNames: "chunks/[name]-[hash]",
     sourcemap: true,
+    minify,
     plugins: [webviewBoundaryPlugin],
   },
 ];
