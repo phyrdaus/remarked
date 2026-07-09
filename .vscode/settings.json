@@ -1,0 +1,7 @@
+{
+  // Use the TypeScript version installed in this repo (node_modules) for
+  // editor IntelliSense and type-checking, so it matches what CI runs.
+  "typescript.tsdk": "node_modules/typescript/lib",
+  // Prompt contributors to switch to the workspace TypeScript version.
+  "typescript.enablePromptUseWorkspaceTsdk": true
+}
