@@ -244,7 +244,7 @@
     "@vscode/vsce": "^3.9.2",
     "esbuild": "^0.28.1",
     "jsdom": "^30.0.1",
-    "mocha": "^11.0.0",
+    "mocha": "^11.8.0",
     "typescript": "^7.0.2",
     "vitest": "^4.1.10"
   },
