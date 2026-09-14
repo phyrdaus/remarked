@@ -244,9 +244,9 @@
     "@vscode/vsce": "^3.9.2",
     "esbuild": "^0.28.2",
     "jsdom": "^30.0.1",
-    "mocha": "^11.8.0",
+    "mocha": "^12.0.0",
     "typescript": "^7.0.2",
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.0"
   },
   "dependencies": {
     "@codemirror/commands": "^6.10.4",
