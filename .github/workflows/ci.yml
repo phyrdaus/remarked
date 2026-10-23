@@ -17,6 +17,9 @@ jobs:
           # jsdom 30 requires Node ^22.22 || ^24.15 || >=26, so 20 crashes on
           # undici's worker_threads.markAsUncloneable.
           node-version: 24
+          # Runner tool caches can lag security releases (e.g. CVE-2026-111497,
+          # fixed in 24.22.1); always resolve the newest 24.x.
+          check-latest: true
           cache: npm
       - run: npm ci
       - run: npm run typecheck
