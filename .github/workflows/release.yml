@@ -28,6 +28,11 @@ jobs:
           check-latest: true
           cache: npm
       - run: npm ci
+      # allowScripts pins exact versions, and Dependabot bumps don't update it.
+      # `ls` exits 0 either way, so require its all-clear line (fails closed if
+      # the command or its wording changes).
+      - name: Check install scripts are approved
+        run: npm install-scripts ls | tee /dev/stderr | grep -qx "No packages with unreviewed install scripts."
       - run: npm run typecheck
       - run: npm test
       - run: npx vsce package --no-dependencies
