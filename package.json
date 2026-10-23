@@ -259,7 +259,7 @@
     "@vscode/codicons": "^0.0.45",
     "katex": "^0.18.1",
     "markdown-it": "^14.3.3",
-    "mermaid": "^11.16.1"
+    "mermaid": "^12.2.0"
   },
   "overrides": {
     "diff": "^8.0.4",
