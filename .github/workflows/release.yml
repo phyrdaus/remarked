@@ -23,6 +23,9 @@ jobs:
           # worker dies. Unrelated to @types/node, which tracks VS Code's
           # Electron runtime (20) and governs the shipped extension.
           node-version: 24
+          # Runner tool caches can lag security releases (e.g. CVE-2026-111497,
+          # fixed in 24.22.1); always resolve the newest 24.x.
+          check-latest: true
           cache: npm
       - run: npm ci
       - run: npm run typecheck
