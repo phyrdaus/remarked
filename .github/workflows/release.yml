@@ -56,10 +56,6 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    env:
-      # Job-level so the step `if` below sees it unambiguously (step-own env
-      # visibility inside its own `if` varies by runner version).
-      VSCE_PAT: ${{ secrets.VSCE_PAT }}
     steps:
       # Only for the vsce pinned in package-lock.json; the VSIX comes from the
       # build job.
@@ -92,7 +88,9 @@ jobs:
       - name: Log in to Microsoft Entra ID
         id: azure
         continue-on-error: true
-        uses: azure/login@v3
+        # Third-party action in the job that can get a Marketplace token:
+        # pinned to a commit, not a movable tag. Dependabot updates the SHA.
+        uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3.1.0
         with:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
@@ -109,6 +107,9 @@ jobs:
       # a release (and no later than 2026-12-01, when the PAT stops working).
       - name: Publish to Marketplace (VSCE_PAT fallback)
         if: steps.entra.outcome != 'success'
+        # Step-scoped so no other step in this job can read the PAT.
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
         run: |
           if [ -z "$VSCE_PAT" ]; then
             echo "::error::Entra ID publish did not succeed and VSCE_PAT is not set."
