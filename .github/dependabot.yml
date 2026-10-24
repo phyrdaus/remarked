@@ -27,9 +27,14 @@ updates:
       production-dependencies:
         dependency-type: "production"
         update-types: ["minor", "patch"]
+        # Pre-1.0 packages get their own PRs: their minor (or 0.0.x patch)
+        # updates are held for review by dependabot-auto-merge.yml and would
+        # otherwise hold the whole group with them. Add new 0.x deps here.
+        exclude-patterns: ["katex", "@vscode/codicons"]
       development-dependencies:
         dependency-type: "development"
         update-types: ["minor", "patch"]
+        exclude-patterns: ["@types/katex", "esbuild"]
 
   # GitHub Actions used by ci.yml / release.yml.
   - package-ecosystem: "github-actions"
