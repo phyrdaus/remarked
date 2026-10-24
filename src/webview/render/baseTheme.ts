@@ -98,6 +98,17 @@ export const baseThemeSpec: Record<string, Record<string, string>> = {
     fontFamily: "Menlo, monospace",
     fontSize: "0.85em",
   },
+  // Left-aligned and space-preserving so the caret line points at the excerpt;
+  // inline-block keeps the block itself centred under the summary.
+  ".cm-rm-mermaid-error-snippet": {
+    display: "inline-block",
+    textAlign: "left",
+    whiteSpace: "pre",
+    maxWidth: "100%",
+    overflowX: "auto",
+    marginTop: "0.3em",
+    opacity: "0.85",
+  },
   ".cm-rm-table-wrap": { position: "relative", margin: "0.5em 0" },
   ".cm-rm-table": { borderCollapse: "collapse", fontSize: "0.95em" },
   ".cm-rm-table th, .cm-rm-table td": {

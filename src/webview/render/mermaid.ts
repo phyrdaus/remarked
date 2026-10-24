@@ -1,3 +1,5 @@
+import { formatMermaidError } from "./mermaidError";
+
 let mermaidPromise: Promise<typeof import("mermaid")["default"]> | null = null;
 let seq = 0;
 
@@ -34,8 +36,20 @@ export function renderMermaid(source: string, container: HTMLElement): void {
       container.innerHTML = svg;
     })
     .catch((err: unknown) => {
+      const { summary, snippet, full } = formatMermaidError(err instanceof Error ? err.message : "render error");
       container.classList.add("cm-rm-mermaid-error");
-      container.textContent = `⚠ mermaid: ${err instanceof Error ? err.message.split("\n")[0] : "render error"}`;
+      container.title = full;
+      // textContent only: the snippet is the user's own diagram source.
+      const line = document.createElement("div");
+      line.className = "cm-rm-mermaid-error-summary";
+      line.textContent = `⚠ mermaid: ${summary}`;
+      container.replaceChildren(line);
+      if (snippet) {
+        const excerpt = document.createElement("div");
+        excerpt.className = "cm-rm-mermaid-error-snippet";
+        excerpt.textContent = snippet;
+        container.append(excerpt);
+      }
     });
 }
 

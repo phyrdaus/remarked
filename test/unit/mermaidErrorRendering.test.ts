@@ -25,4 +25,16 @@ describe("mermaid parse errors", () => {
     expect(container.textContent).toMatch(/^⚠ mermaid: /);
     expect([...document.body.children]).toEqual([container]);
   });
+
+  it("editor: the chip shows the reason, the source snippet, and the full message on hover", async () => {
+    const container = document.createElement("div");
+    document.body.append(container);
+    renderMermaid(BROKEN, container);
+    await vi.waitFor(() => expect(container.classList.contains("cm-rm-mermaid-error")).toBe(true));
+    expect(container.querySelector(".cm-rm-mermaid-error-summary")?.textContent).toBe(
+      "⚠ mermaid: Parse error on line 3, unexpected end of diagram"
+    );
+    expect(container.querySelector(".cm-rm-mermaid-error-snippet")?.textContent).toMatch(/A -->\n-+\^$/);
+    expect(container.title).toMatch(/^Parse error on line 3:\n[\s\S]*got 'EOF'$/);
+  });
 });
