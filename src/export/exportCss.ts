@@ -35,6 +35,8 @@ img { max-width: 100%; border-radius: 3px; }
 .rm-math-block { text-align: center; padding: 0.4em 0; }
 .rm-mermaid { text-align: center; padding: 0.5em 0; }
 .rm-mermaid svg { max-width: 100%; }
+.cm-rm-mermaid-error { color: var(--vscode-errorForeground, #c66); font-family: Menlo, monospace; font-size: 0.85em; }
+.cm-rm-mermaid-error-snippet { display: inline-block; text-align: left; white-space: pre; max-width: 100%; overflow-x: auto; margin-top: 0.3em; opacity: 0.85; }
 @page { margin: 18mm; }
 @media print {
   body.rm-export { color: #000; background: #fff; }
