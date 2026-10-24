@@ -2,22 +2,11 @@
 // matter: GFM tables/strikethrough, task lists, our $-math guards, mermaid
 // fences. Raw HTML is escaped (html:false) — consistent with the editor, and
 // it keeps exported files free of script-injection surface.
-//
-// NOTE: @types/markdown-it@14.1.2 does not expose deep subpath imports
-// (markdown-it/lib/rules_*) via its package exports map. State types are
-// extracted via the Parameters<> utility from the ruler's push() signature —
-// fully typed, no `any` loosening.
 import MarkdownIt from "markdown-it";
+// markdown-it 15 bundles its own types, parser state classes included.
+import type { StateBlock, StateCore, StateInline } from "markdown-it";
 import katex from "katex";
 import { mermaidSlot } from "./mermaidSlot";
-
-// Extract state types from the MarkdownIt instance type via Parameters<>.
-// This avoids the broken deep subpath imports (markdown-it/lib/rules_core/…)
-// that @types/markdown-it@14 no longer exposes in the package exports map.
-type MI = InstanceType<typeof MarkdownIt>;
-type StateCore = Parameters<Parameters<MI["core"]["ruler"]["push"]>[1]>[0];
-type StateInline = Parameters<Parameters<MI["inline"]["ruler"]["push"]>[1]>[0];
-type StateBlock = Parameters<Parameters<MI["block"]["ruler"]["push"]>[1]>[0];
 
 export interface RenderedMarkdown {
   html: string;
@@ -161,7 +150,8 @@ export function renderMarkdown(source: string, opts: RenderMarkdownOptions = {})
   const imageSrcs = new Set<string>();
   const defaultImage = md.renderer.rules.image!.bind(md.renderer.rules);
   md.renderer.rules.image = (tokens, idx, options, env, self) => {
-    const src = tokens[idx].attrGet("src") ?? "";
+    // attrGet is typed string | number; String() matches how the attr renders.
+    const src = String(tokens[idx].attrGet("src") ?? "");
     if (src && !/^(https?:|data:)/i.test(src)) {
       // Srcs must match the rendered attr — replaceImageSrcs keys on them;
       // file reads decode at lookup time.

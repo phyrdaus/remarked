@@ -5,6 +5,9 @@
 - **Requires VS Code 1.101 or later** (June 2025), up from 1.100. If you're on
   VS Code 1.100, the Marketplace keeps offering you Remarked 0.4.0, the last
   version that supports it.
+- **Image alt text keeps inline code.** In the preview panel and in HTML and PDF
+  export, an image written as `` ![see `foo()` here](pic.png) `` now gets the alt
+  text "see foo() here"; the code part used to be dropped. (markdown-it 15.)
 
 ## 0.4.0 - 2026-10-24
 

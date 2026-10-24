@@ -75,4 +75,9 @@ describe("renderMarkdown — mermaid and images", () => {
     expect(imageSrcs).toEqual(["pic.png", "my%20pic.png"]);
     expect(html).toContain('<img src="pic.png" alt="a">');
   });
+
+  it("keeps inline code in image alt text (markdown-it 15; 14 dropped it)", () => {
+    const { html } = renderMarkdown("![see `foo()` here](pic.png)\n");
+    expect(html).toContain('<img src="pic.png" alt="see foo() here">');
+  });
 });
