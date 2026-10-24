@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- **Fix:** a Mermaid diagram with a syntax error no longer leaves Mermaid's own
+  "Syntax error in text" graphic stuck at the bottom of the editor or preview.
+  The inline `⚠ mermaid:` error chip is now the only error shown.
+
 ## 0.3.2 - 2026-07-03
 
 - **Smaller download.** Production bundles are now minified, cutting the packaged

@@ -7,7 +7,13 @@ function loadMermaid() {
       const dark =
         document.body.classList.contains("vscode-dark") ||
         document.body.classList.contains("vscode-high-contrast");
-      m.default.initialize({ startOnLoad: false, theme: dark ? "dark" : "default" });
+      // suppressErrorRendering: on a parse error mermaid otherwise leaves its own
+      // "Syntax error" graphic attached to <body>; callers show their own error.
+      m.default.initialize({
+        startOnLoad: false,
+        theme: dark ? "dark" : "default",
+        suppressErrorRendering: true,
+      });
       return m.default;
     });
   }
