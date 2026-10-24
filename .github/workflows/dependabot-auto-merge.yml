@@ -20,7 +20,20 @@ jobs:
 
       - name: Enable auto-merge for patch & minor updates
         if: steps.meta.outputs.update-type == 'version-update:semver-patch' || steps.meta.outputs.update-type == 'version-update:semver-minor'
-        run: gh pr merge --auto --squash "$PR_URL"
+        # Below 1.0.0 semver allows breaking changes in a minor (0.18 -> 0.19),
+        # and in 0.0.x even in a patch, but Dependabot still labels those
+        # minor/patch. Check every dependency in the PR (previous-version only
+        # covers the first one) and leave any such PR, or one with an unknown
+        # previous version, for review.
+        run: |
+          held=$(jq -r '.[] | (.prevVersion // "") as $prev | select($prev == "" or ($prev | startswith("0.0.")) or (($prev | startswith("0.")) and .updateType == "version-update:semver-minor")) | "\(.dependencyName) \(.prevVersion) -> \(.newVersion)"' <<<"$DEPS")
+          if [ -n "$held" ]; then
+            echo "Not auto-merging; needs review (pre-1.0 or unknown previous version):"
+            echo "$held"
+            exit 0
+          fi
+          gh pr merge --auto --squash "$PR_URL"
         env:
+          DEPS: ${{ steps.meta.outputs.updated-dependencies-json }}
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
