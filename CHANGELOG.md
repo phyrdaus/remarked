@@ -1,14 +1,17 @@
 # Changelog
 
-## Unreleased
+## 0.4.0 - 2026-10-24
 
 - **Mermaid 12.** Diagrams now use Mermaid 12's default layout (ELK) and its
   refreshed `neo` look, so existing flowcharts, state, and class diagrams will
   lay out and look different. Mermaid 12 also moves its bundled KaTeX to 0.18,
   removing the last copy of KaTeX affected by a prototype-pollution advisory
   ([GHSA-238p-pmpm-9mq7](https://github.com/advisories/GHSA-238p-pmpm-9mq7)).
-  The download grows by about 0.4 MB (2.11 → 2.54 MB) because Mermaid now
-  ships the ELK layout engine.
+  The download grows by about 0.5 MB (2.11 → 2.61 MB), mostly because Mermaid
+  now ships the ELK layout engine.
+- **KaTeX 0.19.** Math now renders with KaTeX 0.19. Nothing looks different:
+  its one breaking change affects KaTeX's `strict` mode, which Remarked doesn't
+  use. Mermaid still bundles its own KaTeX 0.18 for math inside diagrams.
 - **Fix:** a Mermaid diagram with a syntax error no longer leaves Mermaid's own
   "Syntax error in text" graphic stuck at the bottom of the editor or preview.
   The inline `⚠ mermaid:` error chip is now the only error shown.
