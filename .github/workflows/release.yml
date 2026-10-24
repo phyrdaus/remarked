@@ -19,7 +19,7 @@ jobs:
           # is green. jsdom 30 needs ^22.22 || ^24.15 || >=26; on Node 20 its
           # undici calls worker_threads.markAsUncloneable and every vitest
           # worker dies. Unrelated to @types/node, which tracks VS Code's
-          # Electron runtime (20) and governs the shipped extension.
+          # Electron runtime (Node 22.15) and governs the shipped extension.
           node-version: 24
           # Runner tool caches can lag security releases (e.g. CVE-2026-111497,
           # fixed in 24.22.1); always resolve the newest 24.x.

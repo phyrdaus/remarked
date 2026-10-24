@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- **Requires VS Code 1.101 or later** (June 2025), up from 1.100. If you're on
+  VS Code 1.100, the Marketplace keeps offering you Remarked 0.4.0, the last
+  version that supports it.
+
 ## 0.4.0 - 2026-10-24
 
 - **Mermaid 12.** Diagrams now use Mermaid 12's default layout (ELK) and its
