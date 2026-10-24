@@ -20,11 +20,16 @@ updates:
       - dependency-name: "@types/vscode"
         update-types:
           ["version-update:semver-major", "version-update:semver-minor"]
+    # Groups take minor/patch only. A group PR is labelled with its largest
+    # update, so one major inside a group stops dependabot-auto-merge.yml from
+    # merging the routine updates too. Majors arrive as their own PRs instead.
     groups:
       production-dependencies:
         dependency-type: "production"
+        update-types: ["minor", "patch"]
       development-dependencies:
         dependency-type: "development"
+        update-types: ["minor", "patch"]
 
   # GitHub Actions used by ci.yml / release.yml.
   - package-ecosystem: "github-actions"
@@ -35,3 +40,4 @@ updates:
       github-actions:
         patterns:
           - "*"
+        update-types: ["minor", "patch"]
