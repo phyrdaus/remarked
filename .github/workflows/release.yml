@@ -3,15 +3,13 @@ on:
   push:
     tags: ["v*"]
 
+permissions: {}
+
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    env:
-      # Job-level so the step `if` below sees it unambiguously (step-own env
-      # visibility inside its own `if` varies by runner version).
-      VSCE_PAT: ${{ secrets.VSCE_PAT }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -40,6 +38,81 @@ jobs:
         run: gh release create "$GITHUB_REF_NAME" *.vsix --generate-notes
         env:
           GH_TOKEN: ${{ github.token }}
-      - name: Publish to Marketplace
-        if: ${{ env.VSCE_PAT != '' }}
-        run: npx vsce publish --no-dependencies -p "$VSCE_PAT"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: vsix
+          path: "*.vsix"
+          if-no-files-found: error
+
+  # Publishing is its own job so the only code that runs with Marketplace
+  # rights is vsce on an already-built VSIX: no tests, no dependency install
+  # scripts. The `marketplace` environment only admits `v*` tags, and the
+  # Entra ID federated credential trusts exactly this repo + environment
+  # (subject repo:phyrdaus@447795/remarked@1270223966:environment:marketplace).
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: marketplace
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      # Job-level so the step `if` below sees it unambiguously (step-own env
+      # visibility inside its own `if` varies by runner version).
+      VSCE_PAT: ${{ secrets.VSCE_PAT }}
+    steps:
+      # Only for the vsce pinned in package-lock.json; the VSIX comes from the
+      # build job.
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          check-latest: true
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - uses: actions/download-artifact@v8
+        with:
+          name: vsix
+          path: ${{ runner.temp }}/vsix
+      - name: Locate VSIX
+        run: |
+          shopt -s nullglob
+          files=("$RUNNER_TEMP"/vsix/*.vsix)
+          if [ "${#files[@]}" -ne 1 ]; then
+            echo "::error::Expected exactly one VSIX, found ${#files[@]}"
+            exit 1
+          fi
+          echo "VSIX=${files[0]}" >> "$GITHUB_ENV"
+
+      # Global Azure DevOps PATs stop working on 2026-12-01, so publish with
+      # Microsoft Entra ID. Both steps may fail without failing the job; the
+      # fallback below then takes over and says so.
+      - name: Log in to Microsoft Entra ID
+        id: azure
+        continue-on-error: true
+        uses: azure/login@v3
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          # The Marketplace token is tenant-scoped; the app has no subscription.
+          allow-no-subscriptions: true
+      - name: Publish to Marketplace (Entra ID)
+        id: entra
+        if: steps.azure.outcome == 'success'
+        continue-on-error: true
+        # vsce takes the Entra ID token from the Azure CLI session above.
+        run: npx vsce publish --azure-credential --packagePath "$VSIX"
+
+      # Remove this step, and the VSCE_PAT secret, once Entra ID has published
+      # a release (and no later than 2026-12-01, when the PAT stops working).
+      - name: Publish to Marketplace (VSCE_PAT fallback)
+        if: steps.entra.outcome != 'success'
+        run: |
+          if [ -z "$VSCE_PAT" ]; then
+            echo "::error::Entra ID publish did not succeed and VSCE_PAT is not set."
+            exit 1
+          fi
+          echo "::warning::Entra ID publish did not succeed; publishing with VSCE_PAT. Fix the Entra ID setup before 2026-12-01, when the PAT stops working."
+          npx vsce publish --packagePath "$VSIX" -p "$VSCE_PAT"
