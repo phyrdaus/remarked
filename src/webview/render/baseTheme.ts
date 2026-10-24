@@ -91,7 +91,16 @@ export const baseThemeSpec: Record<string, Record<string, string>> = {
     fontFamily: "Menlo, monospace",
     fontSize: "0.85em",
   },
-  ".cm-rm-mermaid": { textAlign: "center", padding: "0.5em 0" },
+  // Undo EditorView.lineWrapping (overflow-wrap: anywhere) inside diagrams:
+  // mermaid sizes labels without it, so it would break a word and hide its
+  // last letter. See test/unit/baseThemeMermaidWrap.test.ts.
+  ".cm-rm-mermaid": {
+    textAlign: "center",
+    padding: "0.5em 0",
+    whiteSpace: "normal",
+    wordBreak: "normal",
+    overflowWrap: "normal",
+  },
   ".cm-rm-mermaid svg": { maxWidth: "100%" },
   ".cm-rm-mermaid-error": {
     color: "var(--vscode-errorForeground, #c66)",
