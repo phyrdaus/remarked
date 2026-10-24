@@ -7,6 +7,8 @@ function loadMermaid() {
       const dark =
         document.body.classList.contains("vscode-dark") ||
         document.body.classList.contains("vscode-high-contrast");
+      // mermaid 12's ELK layout and `neo` look are adopted deliberately; add
+      // layout: "dagre", look: "classic" here to restore the pre-12 appearance.
       // suppressErrorRendering: on a parse error mermaid otherwise leaves its own
       // "Syntax error" graphic attached to <body>; callers show their own error.
       m.default.initialize({
