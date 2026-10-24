@@ -26,6 +26,11 @@ function loadMermaid() {
 
 /** Render mermaid source into the container; shows an inline error chip on failure. */
 export function renderMermaid(source: string, container: HTMLElement): void {
+  // Drop any earlier error state in case the caller reuses the container.
+  // Overlapping renders into one container can't settle out of order:
+  // mermaid.render() runs calls one at a time through its executionQueue.
+  container.classList.remove("cm-rm-mermaid-error");
+  container.removeAttribute("title");
   container.textContent = "⏳ rendering diagram…";
   loadMermaid()
     .then((mermaid) => mermaid.render(`rm-mermaid-${seq++}`, source))
