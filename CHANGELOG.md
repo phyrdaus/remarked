@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.5.0 - 2026-10-24
 
 - **Requires VS Code 1.101 or later** (June 2025), up from 1.100. If you're on
   VS Code 1.100, the Marketplace keeps offering you Remarked 0.4.0, the last
