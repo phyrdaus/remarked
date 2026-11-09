@@ -258,7 +258,7 @@
     "@vscode/codicons": "^0.0.45",
     "katex": "^0.19.1",
     "markdown-it": "^15.0.3",
-    "mermaid": "^12.2.0"
+    "mermaid": "^12.3.0"
   },
   "overrides": {
     "diff": "^8.0.4",
