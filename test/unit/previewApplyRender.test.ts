@@ -35,6 +35,44 @@ describe("applyRender", () => {
     expect(c.querySelector("a")?.getAttribute("href") ?? "").not.toMatch(/javascript:/i);
   });
 
+  // Link policy: document links are untrusted, so the preview must not hand
+  // vscode: URIs to VS Code (which would route them to URL handlers). Same
+  // rule as the editor (src/shared/links.ts). Deliberate: don't widen
+  // DOMPurify's ALLOWED_URI_REGEXP to "fix" these links.
+  it("strips vscode: and vscode-insiders: link targets, like the editor", () => {
+    const { html } = renderMarkdown(
+      "[a](vscode:extension/ms-python.python) [b](vscode://file/tmp/a.md) [c](vscode-insiders://settings/x) [d](https://example.com)"
+    );
+    const c = document.createElement("div");
+    applyRender(c, html, []);
+    expect([...c.querySelectorAll("a")].map((a) => a.getAttribute("href"))).toEqual([
+      null,
+      null,
+      null,
+      "https://example.com",
+    ]);
+  });
+
+  // markdown-it never emits file: links (validateLink refuses them), so feed
+  // raw html to check the sanitizer's own layer.
+  it("strips file: hrefs even when the html comes from elsewhere", () => {
+    const c = document.createElement("div");
+    applyRender(c, '<a href="file:///etc/passwd">x</a>', []);
+    expect(c.querySelector("a")?.getAttribute("href")).toBeNull();
+  });
+
+  it("keeps relative, webview https and data: image srcs", () => {
+    const srcs = [
+      "./img/pic.png",
+      "https://file+.vscode-resource.vscode-cdn.net/Users/me/doc/pic.png",
+      "data:image/png;base64,iVBORw0KGgo=",
+    ];
+    const c = document.createElement("div");
+    applyRender(c, srcs.map((s) => `<img src="${s}" alt="">`).join("") + '<a href="./other.md">x</a>', []);
+    expect([...c.querySelectorAll("img")].map((i) => i.getAttribute("src"))).toEqual(srcs);
+    expect(c.querySelector("a")?.getAttribute("href")).toBe("./other.md");
+  });
+
   it("keeps the preview's own markup: data-line anchors, task checkboxes, mermaid slots", () => {
     renderMermaid.mockClear();
     const { html, mermaidSources } = renderMarkdown(

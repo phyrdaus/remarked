@@ -15,6 +15,11 @@ export function applyRender(container: HTMLElement, html: string, mermaidSources
   // safe whatever produces the html. DOMPurify strips MathML <annotation>
   // (an mXSS vector); dropping its content too keeps KaTeX's TeX source from
   // being left as stray text inside <math> for screen readers.
+  // DOMPurify's default link allow-list is deliberate: it strips vscode:
+  // hrefs, which VS Code's webview would otherwise hand to its URL handlers.
+  // Same rule as the editor (src/shared/links.ts): document links are
+  // untrusted. Don't widen ALLOWED_URI_REGEXP. (file: never gets this far;
+  // markdown-it refuses it, and DOMPurify would strip it too.)
   container.innerHTML = DOMPurify.sanitize(html, { ADD_FORBID_CONTENTS: ["annotation"] });
   for (const el of container.querySelectorAll<HTMLElement>(".rm-mermaid-slot[data-mermaid]")) {
     const source = mermaidSources[Number(el.dataset.mermaid)];
