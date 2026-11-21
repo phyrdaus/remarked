@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.5.1 - 2026-11-22
+
+- **Mermaid 12.3: animated flowcharts.** Give flowchart edges a step number
+  (`A e1@--> B` with `e1@{ step: 1 }`) and a dot travels them in step order,
+  highlighting each edge in turn, and loops. If your system is set to reduce
+  motion, the dot is hidden and the diagram stays still.
+- **Mermaid 12.3: BPMN shapes,** such as `A@{ shape: bpmn-start }`,
+  `bpmn-gateway` and `bpmn-activity` (not in Mermaid's docs yet), plus
+  swimlane layout fixes.
+- **Diagrams may lay out slightly differently.** Mermaid 12.3 ships a newer
+  ELK layout engine, so some existing diagrams can come out a little changed,
+  and use-case diagrams now show include/extend labels in «guillemets». One
+  small syntax change: a flowchart edge ID can no longer contain
+  `[ ] ( ) { } |`.
+- **Safer preview.** The preview panel now cleans the rendered Markdown with
+  DOMPurify before showing it. HTML written in a Markdown file was already
+  shown as plain text, so pages look the same. One change: `vscode:` and
+  `vscode-insiders:` links in the preview no longer open and now show as plain
+  text, matching the editor, which never opened them.
+
 ## 0.5.0 - 2026-10-24
 
 - **Requires VS Code 1.101 or later** (June 2025), up from 1.100. If you're on
