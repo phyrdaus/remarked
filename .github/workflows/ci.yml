@@ -9,6 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Nothing here pushes; don't leave GITHUB_TOKEN in .git/config for
+          # npm install scripts or later steps to read.
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           # Keep in lockstep with release.yml, which re-runs these same steps.

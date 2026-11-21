@@ -12,6 +12,11 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Nothing here pushes (gh release create authenticates via GH_TOKEN);
+          # don't leave the contents:write token in .git/config for npm install
+          # scripts or later steps to read.
+          persist-credentials: false
       # The tag names the GitHub Release, but vsce publishes package.json's
       # version, so a mistyped tag would ship one version under another's name.
       # Fail before anything is built or released.

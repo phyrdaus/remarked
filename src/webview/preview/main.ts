@@ -1,5 +1,6 @@
 // Preview panel webview entry (browser bundle). Receives rendered body HTML +
 // mermaid sources from the host and paints them; mermaid renders client-side.
+import DOMPurify from "dompurify";
 import { renderMermaid } from "../render/mermaid";
 import { targetOffsetForLine, type Anchor } from "../../shared/scrollSync";
 import type { ToPreview, FromPreview } from "../../shared/messages";
@@ -9,7 +10,12 @@ declare function acquireVsCodeApi(): { postMessage(msg: unknown): void };
 /** Inject html and render mermaid slots, preserving scroll position. */
 export function applyRender(container: HTMLElement, html: string, mermaidSources: string[]): void {
   const scroll = container.scrollTop;
-  container.innerHTML = html;
+  // Defense in depth: renderMarkdown already escapes raw HTML (html:false),
+  // but that guarantee lives in another file. Sanitizing here keeps this sink
+  // safe whatever produces the html. DOMPurify strips MathML <annotation>
+  // (an mXSS vector); dropping its content too keeps KaTeX's TeX source from
+  // being left as stray text inside <math> for screen readers.
+  container.innerHTML = DOMPurify.sanitize(html, { ADD_FORBID_CONTENTS: ["annotation"] });
   for (const el of container.querySelectorAll<HTMLElement>(".rm-mermaid-slot[data-mermaid]")) {
     const source = mermaidSources[Number(el.dataset.mermaid)];
     if (source != null) renderMermaid(source, el);

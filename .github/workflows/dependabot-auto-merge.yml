@@ -5,14 +5,17 @@ name: Dependabot auto-merge
 # production deps) ship inside the published VSIX, so they wait for review.
 on: pull_request
 
-permissions:
-  contents: write
-  pull-requests: write
+permissions: {}
 
 jobs:
   auto-merge:
     if: github.actor == 'dependabot[bot]'
     runs-on: ubuntu-latest
+    # Scoped to this job (not workflow-wide) so a job added later starts with
+    # no token permissions. `gh pr merge --auto` needs both.
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Fetch Dependabot metadata
         id: meta
