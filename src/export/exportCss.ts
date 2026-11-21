@@ -1,5 +1,6 @@
 // The exported document's stylesheet: the editor's typography, print-friendly.
-// Plain CSS (no VS Code variables — exports live outside the editor).
+// Plain CSS (no VS Code variables — exports live outside the editor), except
+// in rules that only ever match inside the preview webview.
 export const EXPORT_CSS = `
 :root { color-scheme: light dark; }
 body.rm-export {
@@ -21,6 +22,16 @@ h1 { font-size: 1.9em; margin: 0.6em 0 0.3em; }
 h2 { font-size: 1.5em; margin: 0.6em 0 0.25em; }
 h3 { font-size: 1.25em; }
 a { color: #4d7cc1; text-decoration: none; }
+/* The preview sanitizer strips untrusted hrefs (vscode: etc.), leaving a bare
+   <a>: show it as plain text. Specific enough to beat the dark-mode
+   "body.rm-export a" colour above and VS Code's own webview link styles
+   (which underline "p > a" when accessibility.underlineLinks is on, and up
+   to 1.144 colour "a code" as a link). :not(svg a) skips mermaid's SVG links,
+   whose xlink:href doesn't match [href]. Code inside gets the colour VS Code
+   gives all inline code; where that variable is unset, color falls back to
+   inheriting. Exported HTML never has a bare <a>, so only the preview changes. */
+body.rm-export a:not([href]):not(svg a) { color: inherit; text-decoration: none; }
+body.rm-export a:not([href]):not(svg a) code { color: var(--vscode-textPreformat-foreground); text-decoration: none; }
 code { font-family: Menlo, Consolas, monospace; font-size: 0.88em; background: rgba(128,128,128,0.15); border-radius: 3px; padding: 0.1em 0.3em; }
 pre { background: rgba(128,128,128,0.12); border-radius: 4px; padding: 0.8em 1em; overflow-x: auto; line-height: 1.6; }
 pre code { background: none; padding: 0; }
